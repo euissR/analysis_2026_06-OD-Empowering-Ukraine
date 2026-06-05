@@ -19,12 +19,12 @@
         stroke-dasharray: .52 1.04;
       }
 
-      .st2 {
-        stroke-dasharray: .48 .97;
+      .st8 {
+        fill: #de3244;
       }
 
-      .st8 {
-        fill: #063756;
+      .st2 {
+        stroke-dasharray: .48 .97;
       }
 
       .st3 {
