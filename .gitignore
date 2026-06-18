@@ -7,3 +7,4 @@
 
 # Ignore .ai files everywhere
 *.ai
+.Rproj.user
