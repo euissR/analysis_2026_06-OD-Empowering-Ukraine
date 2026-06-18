@@ -1,6 +1,9 @@
-# Ignore all subdirectories except /src
+# Ignore all subdirectories except /src and /graphics/img
 /*/
 !/src/
+!/graphics/
+/graphics/*
+!/graphics/img/
 
 # Ignore .ai files everywhere
 *.ai
