@@ -1,0 +1,1045 @@
+<!-- ============================================================
+     MOCKUP: Arming the Shield — EU Strategic Support for Ukraine
+     EUISS microsite landing page
+
+     Structure mirrors CP_187.html:
+       - same heading hierarchy and text layout
+       - scrollytelling insert (map2 from FINAL.html, standalone)
+       - chapter blurbs grid with hero images instead of mugshots
+
+     Visuals stripped; no Flourish or static chart embeds.
+     ============================================================ -->
+
+<!-- ── MAPBOX & FONTS (required for map2 scrollytelling) ───── -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<script src="https://unpkg.com/enter-view"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        /* background-image: url('src/template_bg.jpg'); */
+        background-image: url('/sites/default/files/2026-03/template_bg_0.jpg');
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+
+    article {
+        position: relative;
+    }
+
+    .body_2-italic {
+        font-style: italic;
+    }
+
+    .body_1-bold {
+        font-weight: 700;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 10%;
+        height: 1em;
+        color: #309ebe !important;
+        background-color: #309ebe50;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* ── HIGHLIGHTS ────────────────────────────────────────── */
+    .hl1 {
+        color: #fff;
+        font-weight: 700;
+        background: #1d1d1b;
+        padding: 0 .15em;
+        margin: 0 -.15em;
+    }
+
+    .hl2 {
+        color: #fff;
+        font-weight: 700;
+        background: #df3144;
+        padding: 0 .15em;
+        margin: 0 -.15em;
+    }
+
+    .hl3 {
+        color: #fff;
+        font-weight: 700;
+        background: #33163a;
+        padding: 0 .15em;
+        margin: 0 -.15em;
+    }
+
+    .hl4 {
+        color: #fff;
+        font-weight: 700;
+        background: #309ebe;
+        padding: 0 .15em;
+        margin: 0 -.15em;
+    }
+
+    /* ── HEADINGS ──────────────────────────────────────────── */
+    h3 {
+        color: #1d1d1b;
+        font-size: 16px;
+        font-family: "PT Sans", sans-serif;
+        font-weight: 700;
+    }
+
+    /* ── CHAPTER BLURB GRID ────────────────────────────────── */
+    .author-profiles-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    @media (min-width: 768px) {
+        .author-profiles-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+    }
+
+    /* Text-only blurb (no image; mugshots discarded) */
+    .author-profile {
+        overflow: hidden;
+    }
+
+    .author-profile p {
+        margin-top: 0;
+    }
+
+    /* ── CHAPTER CARD WITH HERO IMAGE ──────────────────────── */
+    /* Used instead of .author-profile for featured chapters.
+       Hero image sits full-width at top; text flows below.    */
+    .chapter-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        padding: 1em;
+        border: 1px solid #c6c6c6;
+    }
+
+    .chapter-card-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .chapter-card p {
+        margin-top: 0;
+    }
+
+    /* ── FLOAT UTILITIES ───────────────────────────────────── */
+    .float-right-half {
+        float: right;
+        width: 50%;
+        margin-left: 1rem;
+    }
+
+    .float-right-third {
+        float: right;
+        width: 33%;
+        margin-left: 1rem;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────── */
+    .chart-mobile {
+        display: none;
+    }
+
+    .chart-tablet {
+        display: none;
+    }
+
+    .chart-desktop {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+
+        .chart-desktop,
+        .chart-tablet {
+            display: none;
+        }
+
+        .chart-mobile {
+            display: block;
+        }
+
+        .float-right-half,
+        .float-right-third {
+            float: none;
+            width: 100%;
+            margin-left: 0;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+
+        .chart-desktop,
+        .chart-mobile {
+            display: none;
+        }
+
+        .chart-tablet {
+            display: block;
+        }
+
+        .float-right-half {
+            width: 66%;
+        }
+    }
+
+    /* ── SCROLLYTELLING: SECTION CARDS ────────────────────── */
+    .active,
+    .section {
+        color: #1d1d1b;
+        height: auto;
+        font-size: 15px;
+        padding: 0.7vw 1.5vw 0.7vw 1.5vw;
+        border-radius: 0;
+        pointer-events: all !important;
+        background: rgb(255, 255, 255) !important;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px;
+        border-radius: 10px;
+        margin-top: auto;
+    }
+
+    .active {
+        opacity: 1;
+    }
+
+    /* hide trailing spacer section */
+    section#ch16.active,
+    section#ch16.section {
+        opacity: 0;
+    }
+
+    .section:last-child {
+        margin-bottom: 350px;
+    }
+
+    .space {
+        margin: 0;
+        height: 100vh;
+        width: 0;
+        pointer-events: none;
+    }
+
+    #card2 {
+        width: 60%;
+        left: 20%;
+        opacity: 1;
+        pointer-events: none;
+        color: #1d1d1b;
+        font-family: "PT Sans", sans-serif;
+        z-index: 10;
+    }
+
+    @media only screen and (max-width: 768px) {
+
+        .active,
+        .section {
+            background: rgba(255, 255, 255, .66);
+        }
+
+        #card2 {
+            width: 100%;
+            left: 0;
+            margin: 0;
+            z-index: 3;
+        }
+    }
+
+    /* ── MAP CONTAINER ─────────────────────────────────────── */
+    #map2 {
+        width: 100%;
+        height: 100vh;
+        margin-top: 40px;
+        z-index: 0;
+    }
+
+    figure.sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+    }
+
+    /* suppress Drupal-injected <p>&nbsp;</p> node */
+    #map2>p {
+        display: none;
+    }
+
+    aside {
+        display: none;
+    }
+
+    .popup .mapboxgl-popup-content {
+        background-color: rgba(255, 255, 255, .8);
+        color: #000;
+        margin: 5px;
+        padding: .5em;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    }
+
+    .mapboxgl-popup-tip {
+        display: none;
+    }
+
+    /* ── MAP LEGEND ────────────────────────────────────────── */
+    .legend-container {
+        position: fixed;
+        right: 5%;
+        bottom: 5%;
+        width: 15%;
+        background: rgba(255, 255, 255, .9);
+        font-size: 12px;
+        padding: 1em;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+        z-index: 10;
+        display: none;
+        font-family: "PT Sans", sans-serif;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .legend-container {
+            width: 90%;
+            left: 5%;
+            bottom: 0;
+            padding: .5em;
+        }
+    }
+
+    .legend-container [class*="dot-"] {
+        border-radius: 50%;
+        display: inline-block;
+        height: 10px;
+        width: 10px;
+        margin-right: 5px;
+        vertical-align: -.8em;
+    }
+
+    .legend-container .dot-teal {
+        background: #309ebe33;
+        border: 1px solid #309ebe;
+    }
+
+    .legend-container .dot-mauve {
+        background: #33163a33;
+        border: 1px solid #33163a;
+    }
+
+    .legend-container .dot-teal2 {
+        background: #37688233;
+        border: 1px solid #376882;
+    }
+
+    .legend-container .source {
+        font-size: .85em;
+        color: #888;
+        margin-top: .5em;
+    }
+
+    /* ── FOOTNOTES ─────────────────────────────────────────── */
+    .body_9-2-references_body {
+        font-size: 14px;
+    }
+
+    .body_5-list_number a {
+        font-weight: 700;
+    }
+
+    /* ── INLINE HIGHLIGHT BOX ──────────────────────────────────
+       Apply to any inline text via <span class="hl-box">.
+       Semi-transparent teal fill, no border-radius.           */
+    .hl-box {
+        background-color: #309ebe50;
+        padding: 0.1em 0.35em;
+        border-radius: 0;
+        display: inline;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+
+    /* ── BLOCKQUOTE ────────────────────────────────────────────
+       Overrides Drupal's .text-formatted blockquote p rule.
+    ──────────────────────────────────────────────────────────── */
+    blockquote {
+        float: right;
+        clear: right;
+        width: 30%;
+        margin-top: 0.2em;
+        margin-bottom: 1em;
+        margin-left: 1.5em;
+        margin-right: 10%;
+        border-left: none !important;
+        border: none !important;
+        padding: 0 !important;
+        background: none !important;
+        position: relative;
+    }
+
+    blockquote p {
+        color: #1d1d1b !important;
+        font-family: "PT Sans", sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 1.05em !important;
+        line-height: 1.5 !important;
+        letter-spacing: normal !important;
+        font-style: italic !important;
+        padding: 1.1em 1em 1em 1em !important;
+        border-left: none !important;
+        margin: 0 !important;
+    }
+
+    blockquote p::first-letter {
+        all: unset !important;
+        float: none !important;
+        font-size: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+    }
+
+    blockquote+p {
+        clear: none;
+    }
+</style>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PREAMBLE & DOWNLOAD LINK
+═══════════════════════════════════════════════════════════ -->
+
+<p>Explore the interactive introduction below to discover the main
+    themes and chapters. Full report available for
+    <a href="#" target="_blank">download</a>.
+</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     INTRODUCTION
+═══════════════════════════════════════════════════════════ -->
+
+<h1 style="color:#515050 !important">Arming the Shield</h1>
+<h4>How the EU can empower Ukraine against Russian aggression</h4>
+
+<p class="body_3-1-by-bio">by <a href="https://www.iss.europa.eu/about-us">EUISS Research
+        Team</a><span class="body_3-footnote-reference" id="footnote-018-backlink"><a
+            href="#footnote-018"><sup><b>(1)</b></sup></a></span></p>
+
+<p class="body_4-body">Russia's full-scale invasion of Ukraine in February 2022 marked the most
+    serious rupture of European security since the Second World War. More than three years later, the
+    war continues to grind forward, with hundreds of thousands of casualties, millions of displaced
+    persons, and Ukraine's economy reduced to a fraction of its pre-war scale. Yet Ukraine has not
+    fallen. Against expectations, it has held — and in some domains, pushed back. The question this
+    paper asks is not whether Ukraine can survive, but whether it can prevail, and what the European
+    Union must do to make that possible.</p>
+
+<p class="body_4-body">The EU's response to the invasion has been unprecedented in scope. Since
+    February 2022, Member States have collectively provided Ukraine with over €100 billion in
+    financial, military and humanitarian assistance. Eleven packages of sanctions have targeted Russian
+    energy, finance and defence. The European Peace Facility has broken long-standing taboos on EU
+    arms transfers. Yet the pace and coherence of European support have fallen short of what the moment
+    demands. A <span class="body_0-no-break">strategic rethink</span> is overdue.</p>
+
+<p class="body_4-body">A closer look at Russia's strategic economic base — the resource wealth that
+    funds the war machine — illustrates why. Moscow's Arctic territories generate the hydrocarbon
+    revenues that finance the invasion. Yet Western sanctions have left significant loopholes:
+    Rosatom's nuclear and logistics operations remain largely unsanctioned, Arctic LNG flows continue
+    to European terminals via third-country transshipment, and a shadow fleet of ageing tankers ships
+    Russian oil above the G7 price cap. Each of these gaps is a policy
+    <span class="body_0-no-break">choice — not an inevitability.</span>
+</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCROLLYTELLING INSERT — map2 from FINAL.html
+     Reframed: Russia's Arctic economy as the war's material
+     foundation and the target for sustained EU pressure.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Legend container (populated dynamically by JS) -->
+<div class="legend-container" id="fixed-legend2">&nbsp;</div>
+
+<div style="margin:0 10px 0 0;">
+
+    <!-- sticky map figure -->
+    <figure class="sticky" id="map2"></figure>
+
+    <!-- scrolly text cards -->
+    <article id="card2">
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ch11" data-index="0">
+            <p>Russia could not sustain its war against Ukraine without its <span
+                    style="background-color:#c6c6c6;color:#000;"><strong>&nbsp;Arctic
+                        territories&nbsp;</strong></span>, which occupy more than 25% of Russian landmass
+                and provide the economic foundation for<span id="endnote-001-backlink"><a
+                        href="#endnote-001"><sup><b>(2)</b></sup></a></span> Moscow's military
+                machine.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ch12" data-index="1">
+            <p>Russia's resource-oriented economy — where hydrocarbons make up around 60% of
+                exports — relies heavily on Arctic extraction. Over 80% of Russia's gas and
+                approximately 17% of its oil are produced in the Arctic, generating the revenues
+                that finance the invasion.<span id="endnote-002-backlink"><a
+                        href="#endnote-002"><sup><b>(3)</b></sup></a></span></p>
+            <!-- legend source node — content pulled into fixed legend by JS -->
+            <div class="legend-container" id="arctic-res-legend" data-index="1">
+                <div><strong>Oil and gas</strong></div>
+                <div><span class="dot-teal">&nbsp;</span> Gas (and/or condensate)</div>
+                <div><span class="dot-mauve">&nbsp;</span> Oil</div>
+                <div><span class="dot-teal2">&nbsp;</span> Oil and gas</div>
+                <div class="source">Data: Global Energy Monitor, 2025</div>
+            </div>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ch13" data-index="1">
+            <p>Moscow aggressively asserts sovereignty over the Arctic Ocean shelf, claiming 70%
+                of the area beyond its <span style="background-color:#595959;color:#fff;"><strong>
+                        &nbsp;exclusive economic zone (EEZ)&nbsp;</strong></span>. These claims reflect a
+                strategic imperative: control over the resource base that will fund Russian
+                military capacity for decades — and the target of any sustained EU economic
+                strategy.</p>
+            <div class="legend-container" id="eez-legend" data-index="1">
+                <div><strong>Exclusive Economic Zone</strong></div>
+                <div class="source">Data: Marine Regions, 2025</div>
+            </div>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ch14" data-index="1">
+            <p>The <span style="background-color:#000;color:#fff;"><strong>&nbsp;Northern Sea
+                        Route (NSR)&nbsp;</strong></span> is Moscow's instrument for monetising Arctic
+                resources and circumventing Western sanctions. Russia's ability to route energy
+                exports via the NSR limits the impact of EU pressure — a vulnerability that EU
+                Arctic and sanctions policy must address directly.</p>
+            <div class="legend-container" id="arctic_lanes-legend" data-index="1">
+                <div><strong>Northern Sea Route</strong></div>
+                <div class="source">Data: Arctic Portal, 2025</div>
+            </div>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ch15" data-index="1">
+            <p>Russia operates a network of <strong>port terminals</strong> along the NSR,
+                managed by Rosatom — an entity that has so far escaped comprehensive EU and G7
+                sanctions. Closing this loophole is among the most concrete steps the EU could
+                take to reduce Russian revenues and, with them, the Kremlin's capacity to wage
+                war.</p>
+            <div class="legend-container" id="arcticports-legend" data-index="1">
+                <div><strong>Major Russian ports</strong></div>
+                <div class="source">Data: IMF Portwatch, 2025</div>
+            </div>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <!-- trailing spacer — hidden via CSS rule above -->
+        <section class="section" id="ch16" data-index="1">&nbsp;</section>
+
+    </article>
+</div>
+<!-- SCROLLY2 end -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BODY: THREE STRUCTURAL CHALLENGES
+═══════════════════════════════════════════════════════════ -->
+
+<p class="body_4-body">The data above illustrates a core paradox of EU strategy: the Union imposes
+    sanctions on Russia while leaving significant revenue streams untouched. Shadow-fleet tankers
+    carry Russian oil above the G7 price cap. Arctic LNG arrives in European terminals through
+    third-country transshipment. Rosatom continues to operate freely across Europe's nuclear fuel
+    supply chain. Closing these gaps requires not just political will but institutional capacity the
+    EU has not yet fully developed.</p>
+
+<p class="body_4-body">EU support for Ukraine has evolved significantly since 2022, but three
+    structural challenges continue to limit its effectiveness. Understanding these is essential to
+    designing a<span class="body_0-no-break"> more coherent approach.</span></p>
+
+<p class="body_4-body"><span class="body_1-bold">From emergency response to strategic
+        endurance:</span> EU assistance has been reactive rather than strategic. Member States have
+    donated what they could spare rather than what Ukraine most needs. The result is a patchwork of
+    contributions — valuable in aggregate but suboptimal in composition. Ammunition shortages persist.
+    Air-defence systems remain insufficient. Artillery barrels wear out faster than they are replaced.
+    The EU has the economic weight to resolve these imbalances; it has lacked the coordination
+    mechanisms and political will to do so consistently.<span id="footnote-017-backlink"><a
+            href="#footnote-017"><sup><b>(2)</b></sup></a></span></p>
+
+<p class="body_4-body"><span class="body_1-bold">The defence industrial base:</span> Europe's
+    defence industry was not built for a prolonged high-intensity land war. Production lines had been
+    scaled back after the Cold War, and reconversion takes time. The EU has taken important steps —
+    the Defence Production Support Instrument, the Act in Support of Ammunition Production — but
+    ambition has repeatedly outrun delivery. Ukraine needs sustained industrial commitment stretching
+    well beyond the current political cycle. The EU must treat its defence industrial ramp-up not as
+    a temporary emergency measure but as a permanent structural investment.<span id="footnote-016-backlink"><a
+            href="#footnote-016"><sup><b>(3)</b></sup></a></span></p>
+
+<blockquote>Some negotiated compromise; others insist on <span class="hl-box">Ukrainian victory</span> as the only basis
+    for a durable peace.</blockquote>
+<p class="body_4-body"><span class="body_1-bold">Institutional coherence and the unanimity
+        constraint:</span> EU foreign and security policy continues to operate under unanimity. This
+    creates structural vulnerabilities: a single Member State can block, delay or dilute collective
+    decisions. As the war has dragged on, divergences within the EU have grown. Some Member States
+    advocate negotiated compromise; others insist on Ukrainian victory as the only basis for a
+    durable peace. Managing this diversity while maintaining strategic coherence is the EU's central
+    institutional challenge for the years ahead.<span id="footnote-015-backlink"><a
+            href="#footnote-015"><sup><b>(4)</b></sup></a></span></p>
+
+<p class="body_4-body">These three challenges are not insurmountable — they are political choices.
+    The question is whether the EU's Member States and its institutions can make the right ones before
+    the window of strategic opportunity closes. Ukraine's resilience is remarkable, but it is not
+    infinite. Europe's credibility as a security provider, its standing in the international order,
+    and the safety of its own citizens all depend on getting this right.</p>
+
+<p class="body_4-body">In 2022, many European capitals hoped that the war would be resolved
+    quickly and that the EU's role would be primarily humanitarian. That assumption has been
+    overtaken by events. The EU now faces a choice between strategic commitment and strategic
+    irrelevance. The analysis that follows shows what the former would require — and how far the
+    Union remains from achieving it.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     THE CHAPTERS
+═══════════════════════════════════════════════════════════ -->
+
+<h2 class="highlight">The pillars of EU support for Ukraine</h2>
+
+<p class="body_4-body">This paper examines how EU support can be made more effective across the
+    key instruments and domains where European action has the greatest potential to alter the
+    strategic balance. We ask: what works, what falls short, and what bold steps could change the
+    trajectory of the war? We address these questions in seven thematic chapters and five regional
+    perspectives.</p>
+
+<h3>The instruments: what works and where the gaps are</h3>
+
+<p class="body_4-body">The effectiveness of EU support varies considerably across different policy
+    domains. In some areas, the EU has been able to act decisively, establishing new mechanisms and
+    bypassing traditional constraints. In others, structural limitations — unanimity rules, industrial
+    bottlenecks, member-state divergence — have blunted the impact of otherwise well-designed
+    policies. The chapters that follow assess each instrument on its own terms, and ask what
+    institutional or political changes would maximise its contribution to Ukraine's strategic
+    position.</p>
+
+<!-- ── REGIONAL PERSPECTIVES ──────────────────────────────── -->
+
+<h3>The frontline states: partners, lessons and vulnerabilities</h3>
+
+<p class="body_4-body">Ukraine is not fighting alone, and the EU is not the only actor whose
+    decisions shape the outcome. Countries on NATO's eastern flank — Poland, the Baltic states and
+    Romania — have been Ukraine's most consistent advocates within the EU and its most important
+    logistical partners. They have borne disproportionate security costs while pressing the Union to
+    act with greater urgency. Beyond Europe's borders, the war has reshaped relationships across the
+    globe — from the Gulf states recalibrating their energy dependence on Russia, to African
+    governments navigating competing pressure from Moscow and<span class="body_0-no-break">
+        Brussels.</span></p>
+
+<div class="author-profiles-grid">
+
+    <div class="author-profile">
+        <p class="body_4-body">The <b>Baltic states and Poland</b> have led EU ambition on
+            Ukraine support, consistently advocating for higher military aid, tougher sanctions
+            and faster accession. <a href="#" target="_blank">This chapter</a> examines their
+            strategic calculus — driven by acute threat perception — and asks what lessons their
+            experience of Russian pressure and national resilience holds for the EU as a
+            <span class="body_0-no-break">whole.</span>
+        </p>
+    </div>
+
+    <div class="author-profile">
+        <p class="body_4-body"><b>Romania and Moldova</b> sit at the intersection of the war's
+            most acute spillover effects — refugee flows, energy disruptions, Transnistrian
+            instability. <a href="#" target="_blank">This chapter</a> traces the security and
+            economic costs borne by these two states, and makes the case for substantially deeper
+            EU investment in their resilience and<span class="body_0-no-break">
+                integration.</span></p>
+    </div>
+
+    <div class="author-profile">
+        <p class="body_4-body">The <b>South Caucasus</b> has become a critical corridor for
+            Russian sanctions evasion. Armenia, Georgia and Azerbaijan each navigate the war's
+            pressures differently. <a href="#" target="_blank">This chapter</a> assesses EU
+            leverage in the region and the conditions under which a more active EU policy could
+            reduce Russia's ability to circumvent Western<span class="body_0-no-break">
+                pressure.</span></p>
+    </div>
+
+    <div class="author-profile">
+        <p class="body_4-body">Countries across the <b>Western Balkans</b> face a difficult
+            choice between EU accession commitments and economic ties with Russia. Several have
+            declined to align with EU sanctions. <a href="#" target="_blank">This chapter</a>
+            examines how the EU can use enlargement conditionality and economic incentives to
+            bring the Western Balkans into closer alignment with EU positions on
+            <span class="body_0-no-break">the war.</span>
+        </p>
+    </div>
+
+    <div class="author-profile">
+        <p class="body_4-body"><b>The Global South</b> has largely declined to condemn Russia.
+            Many governments cite energy price shocks, food insecurity and historical
+            non-alignment as reasons for abstention. <a href="#" target="_blank">This
+                chapter</a> analyses EU efforts to change this calculus — through the Global Gateway
+            and grain-export diplomacy — and asks what more ambitious EU engagement in the
+            Global South<span class="body_0-no-break"> might look like.</span></p>
+    </div>
+
+</div><!-- end .author-profiles-grid (regional chapters) -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONCLUSION
+═══════════════════════════════════════════════════════════ -->
+
+<h2 class="highlight">Towards a comprehensive EU strategy<br>for Ukrainian victory</h2>
+
+<p class="body_4-body">Europe faces a defining choice. The EU cannot be a serious geopolitical
+    actor if it allows a revisionist power to redraw borders in Europe by force. Yet the path from
+    rhetorical commitment to strategic effectiveness is neither obvious nor guaranteed. Member States
+    disagree on how much risk to assume, how much to spend, and how far to escalate economic pressure
+    on Russia. The EU's institutional machinery was not designed for
+    <span class="body_0-no-break">sustained warfare.</span>
+</p>
+
+<div class="author-profile">
+    <p class="body_4-body">The EU and its Member States must therefore develop a dual approach.
+        In <b>the Conclusion</b>, the EUISS research team distils the lessons from this study
+        into concrete recommendations. These span the short term — closing sanctions loopholes,
+        accelerating ammunition production, deepening intelligence cooperation — and the
+        structural: reforming EU decision-making on foreign and security policy, accelerating
+        Ukrainian accession, and building the industrial and financial architecture for a long
+        war and ultimate recovery. The mix between immediate and structural moves will vary across
+        policy domains. Both are necessary to give Ukraine — and Europe — the best possible chance
+        of a<span class="body_0-no-break"> durable and just peace.</span></p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     REFERENCES
+═══════════════════════════════════════════════════════════ -->
+
+<h2>References</h2>
+<section class="_idFootnotes">
+
+    <p id="footnote-018" class="_idFootnote body_9-2-references_body">
+        <b><a class="_idFootnoteAnchor" href="#footnote-018-backlink">(1)</a></b>
+        The authors thank colleagues at EUISS for extensive feedback on
+        earlier drafts of this study.
+    </p>
+
+    <p id="footnote-017" class="_idFootnote body_9-2-references_body">
+        <b><a class="_idFootnoteAnchor" href="#footnote-017-backlink">(2)</a></b>
+        Fiott, D.,
+        <a href="https://www.iss.europa.eu" target="_blank">'European defence in the age
+            of war: Lessons from Ukraine'</a>, EUISS Brief, March 2025.
+    </p>
+
+    <p id="footnote-016" class="_idFootnote body_9-2-references_body">
+        <b><a class="_idFootnoteAnchor" href="#footnote-016-backlink">(3)</a></b>
+        Brauner, J.,
+        <a href="https://www.iss.europa.eu" target="_blank">'Closing the gap: EU defence
+            production and the Ukraine war'</a>, EUISS Analysis, January 2025.
+    </p>
+
+    <p id="footnote-015" class="_idFootnote body_9-2-references_body">
+        <b><a class="_idFootnoteAnchor" href="#footnote-015-backlink">(4)</a></b>
+        Tocci, N.,
+        <a href="https://www.iss.europa.eu" target="_blank">'EU foreign policy and the
+            unanimity trap'</a>, <span class="body_2-italic">Survival</span>, Vol. 67,
+        No. 1, February 2025.
+    </p>
+
+    <p id="endnote-001" class="_idFootnote body_9-2-references_body">
+        <b><a href="#endnote-001-backlink">(2)</a></b>
+        Russian Government,
+        <a href="https://arctic.gov.ru" target="_blank"><span class="body_2-italic">State
+                Programme for the Development of the Russian Arctic</span></a>, 2020 (updated 2025).
+    </p>
+
+    <p id="endnote-002" class="_idFootnote body_9-2-references_body">
+        <b><a href="#endnote-002-backlink">(3)</a></b>
+        IEA,
+        <a href="https://www.iea.org" target="_blank">'Russia's Arctic energy exports
+            and Western sanctions'</a>, Special Report, October 2024.
+    </p>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAPBOX JS — map2 scrollytelling
+     Adapted from FINAL.html for standalone use (no map1).
+═══════════════════════════════════════════════════════════ -->
+<script>
+    // detect mobile before map2 init
+    var zoomFactor = window.innerWidth < 768;
+
+    mapboxgl.accessToken =
+        "pk.eyJ1IjoiY2R0cmljaCIsImEiOiJjbTByd2JodmwwYzQ3MmxzM2I1bnp5dnRiIn0.687qmVFDkSJGHyI7G_d4aw";
+
+    var map2 = new mapboxgl.Map({
+        container: "map2",
+        style: "mapbox://styles/cdtrich/cm5zhwwi9001z01qwfrno7a4r",
+        projection: "globe",
+        center: [104.88053, 67.54952],
+        zoom: zoomFactor ? 1.0 : 2.0,
+        pitch: 0.0,
+        bearing: 0.0,
+    });
+
+    // disable all interactive controls — scrollytelling drives the camera
+    map2.boxZoom.disable();
+    map2.scrollZoom.disable();
+    map2.keyboard.disable();
+    map2.doubleClickZoom.disable();
+    map2.dragPan.disable();
+    map2.dragRotate.disable();
+    map2.touchZoomRotate.disable();
+    map2.getCanvas().style.cursor = "default";
+    map2.resize();
+
+    var popup = new mapboxgl.Popup({
+        className: "popup",
+        closeButton: false,
+        closeOnClick: false,
+        offset: [0, -5],
+    });
+
+    // chapter camera positions
+    var chapters2 = {
+        ch11: { center: [104.88053, 67.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+        ch12: { center: [104.88053, 67.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+        ch13: { center: [104.88053, 77.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+        ch14: { center: [104.88053, 77.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+        ch15: { center: [104.88053, 77.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+        ch16: { center: [104.88053, 77.54952], zoom: zoomFactor ? 1.0 : 2.0, pitch: 0, bearing: 0 },
+    };
+
+    // ── add layers after style loads ──────────────────────────
+    map2.on("style.load", function () {
+
+        map2.addSource("arctic-ru", { type: "vector", url: "mapbox://cdtrich.7qix6ty3" });
+        map2.addLayer({
+            id: "arctic-ru", type: "fill", source: "arctic-ru",
+            "source-layer": "arctic_ru-4l0nk1",
+            layout: { visibility: "visible" },
+            paint: { "fill-opacity": .05, "fill-color": "#000000" }
+        });
+
+        map2.addSource("arcticrussia", { type: "vector", url: "mapbox://cdtrich.9g0mc1kd" });
+        map2.addLayer({
+            id: "arcticrussia", type: "fill", source: "arcticrussia",
+            "source-layer": "arcticrussia-crdqsg",
+            layout: { visibility: "visible" },
+            paint: { "fill-opacity": .2, "fill-color": "#000000" }
+        });
+
+        map2.addSource("arctic-pipelines", { type: "vector", url: "mapbox://cdtrich.2flse59d" });
+        map2.addLayer({
+            id: "arctic-pipelines", type: "line", source: "arctic-pipelines",
+            "source-layer": "pipelines-3dgmje",
+            layout: { visibility: "none" },
+            paint: {
+                "line-width": 1, "line-opacity": .66,
+                "line-color": ["match", ["get", "type"], "Gas", "#309ebe", "Oil", "#33163a", "#999999"]
+            }
+        });
+
+        map2.addSource("arctic-res", { type: "vector", url: "mapbox://cdtrich.0ez98k5w" });
+        map2.addLayer({
+            id: "arctic-res", type: "circle", source: "arctic-res",
+            "source-layer": "arctic_res-9ro66t",
+            layout: { visibility: "none" },
+            paint: {
+                "circle-radius": zoomFactor ? 1.5 : 2,
+                "circle-opacity": .5,
+                "circle-stroke-width": 1,
+                "circle-stroke-opacity": 1,
+                "circle-stroke-color": ["match", ["get", "Type"],
+                    "Gas (and/or condensate)", "#309ebe", "Oil", "#33163a", "Oil and gas", "#376882", "#999999"],
+                "circle-color": ["match", ["get", "Type"],
+                    "Gas (and/or condensate)", "#309ebe", "Oil", "#33163a", "Oil and gas", "#376882", "#999999"]
+            }
+        });
+
+        map2.addSource("arcticports", { type: "vector", url: "mapbox://cdtrich.6w5z4g8a" });
+        map2.addLayer({
+            id: "arcticports", type: "circle", source: "arcticports",
+            "source-layer": "arcticports-34l0xl",
+            layout: {
+                visibility: "none",
+                "circle-sort-key": ["-", 0, ["get", "share"]]
+            },
+            paint: {
+                "circle-radius": ["*", ["sqrt", ["get", "share"]], zoomFactor ? 1 : 4],
+                "circle-opacity": .2,
+                "circle-stroke-width": 1, "circle-stroke-opacity": 1,
+                "circle-color": "#000000", "circle-stroke-color": "#000"
+            }
+        });
+
+        map2.addSource("eez_fill", { type: "vector", url: "mapbox://cdtrich.0zb23saf" });
+        map2.addLayer({
+            id: "eez_fill", type: "fill", source: "eez_fill",
+            "source-layer": "eez_fill-5t0yj7",
+            layout: { visibility: "none" },
+            paint: { "fill-opacity": .5, "fill-color": "#000" }
+        });
+
+        map2.addSource("arctic_lanes", { type: "vector", url: "mapbox://cdtrich.1fx6302u" });
+        map2.addLayer({
+            id: "arctic_lanes", type: "line", source: "arctic_lanes",
+            "source-layer": "arctic_lanes-8ksp0u",
+            layout: { visibility: "none" },
+            paint: {
+                "line-width": 3, "line-opacity": .66, "line-color": "#000000",
+                "line-dasharray": [2, 2]
+            }
+        });
+
+    }); // style.load
+
+    // ── tooltips ──────────────────────────────────────────────
+    map2.on("mousemove", "arctic-res", function (e) {
+        map2.getCanvas().style.cursor = "pointer";
+        var f = map2.queryRenderedFeatures(e.point, { layers: ["arctic-res"] });
+        if (!f.length) return;
+        popup.setLngLat(e.lngLat)
+            .setHTML("<b>" + f[0].properties.Name + "</b><br>" + f[0].properties.Type)
+            .addTo(map2);
+    });
+    map2.on("mouseleave", "arctic-res", function () {
+        map2.getCanvas().style.cursor = "default"; popup.remove();
+    });
+
+    map2.on("mousemove", "arcticports", function (e) {
+        map2.getCanvas().style.cursor = "pointer";
+        var f = map2.queryRenderedFeatures(e.point, { layers: ["arcticports"] });
+        if (!f.length) return;
+        popup.setLngLat(e.lngLat)
+            .setHTML("<b>" + f[0].properties.portname + "</b><br>" +
+                Math.round(f[0].properties.share) + "% of Russian maritime trade (2019–2024)")
+            .addTo(map2);
+    });
+    map2.on("mouseleave", "arcticports", function () {
+        map2.getCanvas().style.cursor = "default"; popup.remove();
+    });
+
+    // ── chapter switching ─────────────────────────────────────
+    var activeChapterName2 = "";
+
+    function setActiveChapter2(chapterName) {
+        if (chapterName === activeChapterName2) return;
+
+        var legendContent2 = "";
+
+        if (chapterName === "ch11") {
+            map2.setLayoutProperty("arcticrussia", "visibility", "visible");
+            map2.setPaintProperty("arcticrussia", "fill-opacity", .2);
+            map2.setLayoutProperty("arctic-ru", "visibility", "visible");
+            map2.setLayoutProperty("arctic-res", "visibility", "none");
+            map2.setLayoutProperty("arctic-pipelines", "visibility", "none");
+
+        } else if (chapterName === "ch12") {
+            map2.setPaintProperty("arcticrussia", "fill-opacity", .05);
+            map2.setLayoutProperty("arctic-res", "visibility", "visible");
+            map2.setPaintProperty("arctic-res", "circle-radius", zoomFactor ? 1 : 2);
+            map2.setPaintProperty("arctic-res", "circle-opacity", .5);
+            map2.setPaintProperty("arctic-res", "circle-stroke-opacity", 1);
+            map2.setLayoutProperty("arctic-pipelines", "visibility", "visible");
+            map2.setPaintProperty("arctic-pipelines", "line-opacity", .66);
+            map2.setLayoutProperty("eez_fill", "visibility", "none");
+            legendContent2 = document.getElementById("arctic-res-legend").innerHTML;
+
+        } else if (chapterName === "ch13") {
+            map2.setPaintProperty("arctic-res", "circle-radius", 1);
+            map2.setPaintProperty("arctic-res", "circle-opacity", .15);
+            map2.setPaintProperty("arctic-res", "circle-stroke-opacity", .15);
+            map2.setPaintProperty("arctic-pipelines", "line-opacity", .15);
+            map2.setLayoutProperty("eez_fill", "visibility", "visible");
+            map2.setPaintProperty("eez_fill", "fill-opacity", .25);
+            map2.setLayoutProperty("arctic_lanes", "visibility", "none");
+            legendContent2 = document.getElementById("eez-legend").innerHTML;
+
+        } else if (chapterName === "ch14") {
+            map2.setPaintProperty("eez_fill", "fill-opacity", .1);
+            map2.setLayoutProperty("arctic_lanes", "visibility", "visible");
+            map2.setPaintProperty("arctic_lanes", "line-opacity", .66);
+            map2.setLayoutProperty("arcticports", "visibility", "none");
+            legendContent2 = document.getElementById("arctic_lanes-legend").innerHTML;
+
+        } else if (chapterName === "ch15") {
+            map2.setPaintProperty("arctic_lanes", "line-opacity", .25);
+            map2.setLayoutProperty("arcticports", "visibility", "visible");
+            map2.setPaintProperty("arcticports", "circle-opacity", .2);
+            legendContent2 = document.getElementById("arcticports-legend").innerHTML;
+
+        } else if (chapterName === "ch16") {
+            legendContent2 = "";
+        }
+
+        map2.flyTo(chapters2[chapterName]);
+
+        // update fixed legend
+        var lc = document.getElementById("fixed-legend2");
+        if (legendContent2) {
+            lc.innerHTML = legendContent2;
+            lc.style.display = "block";
+        } else {
+            lc.style.display = "none";
+        }
+
+        // update section active state
+        document.getElementById(chapterName).setAttribute("class", "active");
+        if (activeChapterName2) {
+            var prev = document.getElementById(activeChapterName2);
+            if (prev) prev.setAttribute("class", "section");
+        }
+        activeChapterName2 = chapterName;
+    }
+
+    // ── scroll handler (standalone — no map1 dependency) ──────
+    window.onscroll = function () {
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        var viewportCenter = scrollTop + (window.innerHeight / 2);
+        var map2El = document.getElementById("map2");
+        if (!map2El) return;
+
+        if (viewportCenter >= map2El.offsetTop) {
+            var keys = Object.keys(chapters2);
+            for (var i = 0; i < keys.length; i++) {
+                if (isElementOnScreen(keys[i])) {
+                    setActiveChapter2(keys[i]);
+                    break;
+                }
+            }
+        }
+    };
+
+    function isElementOnScreen(id) {
+        var el = document.getElementById(id);
+        if (!el) return false;
+        var b = el.getBoundingClientRect();
+        return b.top < window.innerHeight && b.bottom > 0;
+    }
+</script>

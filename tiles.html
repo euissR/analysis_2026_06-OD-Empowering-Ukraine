@@ -1,0 +1,148 @@
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        background-image: url('/sites/default/files/2026-03/template_bg_0.jpg');
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* ── HEADINGS ──────────────────────────────────────────── */
+    h3 {
+        color: #1d1d1b;
+        font-size: 16px;
+        font-family: "PT Sans", sans-serif;
+        font-weight: 700;
+    }
+
+    /* ── CHAPTER BLURB GRID ────────────────────────────────── */
+    .author-profiles-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    @media (min-width: 768px) {
+        .author-profiles-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .author-profile {
+        overflow: hidden;
+    }
+
+    .author-profile p {
+        margin-top: 0;
+    }
+
+    /* ── CHAPTER CARD WITH HERO IMAGE ──────────────────────── */
+    .chapter-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        padding: 1em;
+        border: 1px solid #c6c6c6;
+    }
+
+    .chapter-card-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .chapter-card p {
+        margin-top: 0;
+    }
+</style>
+
+
+<!-- ── CHAPTER CARDS WITH HERO IMAGES ─────────────────────────
+     Hero images replace author mugshots throughout this section.
+     template_energy.jpg → Chapter 1 (Energy & sanctions)
+     template_miltech.jpg → Chapter 2 (Military technology)
+     Remaining chapters: text only (no images).
+────────────────────────────────────────────────────────────── -->
+<div class="author-profiles-grid">
+
+    <!-- CHAPTER 1 — Energy security (hero image) -->
+    <div class="chapter-card">
+        <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png"
+            alt="Hero image: Energy security and sanctions enforcement">
+        <p class="body_4-body"><b>Energy security and sanctions enforcement:</b> the EU has
+            imposed eleven rounds of sanctions on Russian energy, but significant loopholes
+            remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
+            the shadow-fleet gap, bring Rosatom under full sanctions coverage, and use its import
+            market power to accelerate the erosion of Russian hydrocarbon
+            <span class="body_0-no-break">revenues.</span>
+        </p>
+    </div>
+
+    <!-- CHAPTER 2 — Military technology (hero image) -->
+    <div class="chapter-card">
+        <img class="chapter-card-img" src="/sites/default/files/2026-03/template_miltech.png"
+            alt="Hero image: Military technology and defence industrial cooperation">
+        <p class="body_4-body"><b>Military technology and defence industrial cooperation:</b>
+            Ukraine has become the world's most intensive testing ground for modern warfare.
+            <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
+            industrial partnerships can be deepened — joint production of artillery shells,
+            drones and electronic-warfare systems — and what institutional frameworks would
+            unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
+        </p>
+    </div>
+
+    <!-- CHAPTER 3 — Financial support (no image) -->
+    <div class="author-profile">
+        <p class="body_4-body"><b>Financial support and macro-economic resilience:</b>
+            maintaining Ukraine's state capacity — paying salaries, pensions and energy
+            subsidies — has been as important as military aid in keeping the country functional
+            under fire. <a href="#" target="_blank">This chapter</a> tracks the effectiveness of
+            EU financial support mechanisms, including the Ukraine Facility, and examines whether
+            frozen Russian sovereign assets can be sustainably mobilised for
+            <span class="body_0-no-break">reconstruction.</span>
+        </p>
+    </div>
+
+    <!-- CHAPTER 4 — Intelligence and cyber (no image) -->
+    <div class="author-profile">
+        <p class="body_4-body"><b>Intelligence, surveillance and cyber defence:</b> information
+            asymmetry has shaped every phase of the conflict. <a href="#" target="_blank">This
+                chapter</a> evaluates EU contributions to Ukrainian intelligence capacity —
+            satellite imagery, signals intelligence sharing and EU Cyber Rapid Response Teams —
+            and identifies the legal and operational constraints that limit deeper
+            <span class="body_0-no-break">cooperation.</span>
+        </p>
+    </div>
+
+    <!-- CHAPTER 5 — Counter-disinformation (no image) -->
+    <div class="author-profile">
+        <p class="body_4-body"><b>Counter-disinformation and information resilience:</b>
+            Russia's information war targets not only Ukrainian society but European publics.
+            <a href="#" target="_blank">This chapter</a> examines how the EU can strengthen
+            Ukraine's strategic communication capacity, protect European audiences from Kremlin
+            narratives, and use regulatory tools — including the Digital Services Act — to reduce
+            the reach of Russian<span class="body_0-no-break"> disinformation.</span>
+        </p>
+    </div>
+
+    <!-- CHAPTER 6 — Accession (no image) -->
+    <div class="author-profile">
+        <p class="body_4-body"><b>Accession as a strategic instrument:</b> EU membership has
+            been described as the most powerful tool of European foreign policy. <a href="#" target="_blank">This
+                chapter</a> asks whether the accession process can be
+            accelerated to serve as a strategic anchor for Ukraine — locking in reforms,
+            sustaining elite commitment to the European project, and building the institutional
+            infrastructure for post-war<span class="body_0-no-break"> integration.</span></p>
+    </div>
+
+</div><!-- end .author-profiles-grid (policy chapters) -->

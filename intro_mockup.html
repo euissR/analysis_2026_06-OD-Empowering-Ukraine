@@ -1,0 +1,350 @@
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        /* background-image: url('/');
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center; */
+    }
+
+    article {
+        position: relative;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 10%;
+        height: 1em;
+        background-color: #309ebe50;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* ── SCROLLY: STICKY GRAPHIC ───────────────────────────── */
+    figure.sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+    }
+
+    .scrolly-graphic {
+        width: 100%;
+        height: 100vh;
+        margin-top: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* background: #f0f0f0; */
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .scrolly-graphic img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* ── SCROLLY: CARDS ────────────────────────────────────── */
+    .active,
+    .section {
+        color: #1d1d1b;
+        height: auto;
+        font-size: 15px;
+        font-family: "PT Sans", sans-serif;
+        padding: 0.7vw 1.5vw 0.7vw 1.5vw;
+        pointer-events: all !important;
+        background: rgb(255, 255, 255) !important;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px;
+        border-radius: 10px;
+        margin-top: auto;
+    }
+
+    .active {
+        opacity: 1;
+    }
+
+    .section:last-child {
+        margin-bottom: 350px;
+    }
+
+    .space {
+        margin: 0;
+        height: 100vh;
+        width: 0;
+        pointer-events: none;
+    }
+
+    #strikes-cards,
+    #strikes-cards2,
+    #strikes-cards3,
+    #strikes-cards4,
+    #strikes-cards5 {
+        width: 50%;
+        left: 25%;
+        opacity: 1;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────── */
+    @media only screen and (max-width: 768px) {
+
+        .active,
+        .section {
+            background: rgba(255, 255, 255, .66);
+        }
+
+        #strikes-cards,
+        #strikes-cards2 {
+            width: 100%;
+            left: 0;
+            margin: 0;
+            z-index: 3;
+        }
+    }
+</style>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DEEP STRIKES — scrollytelling mockup (static image)
+═══════════════════════════════════════════════════════════ -->
+
+<h2 class="highlight">Deep strikes</h2>
+
+<div class="scrolly-unit" style="margin:0 10px 0 0;">
+
+    <!-- sticky graphic -->
+    <figure class="sticky">
+        <div class="scrolly-graphic">
+            <img src="" alt="Russian strikes on Ukraine">
+        </div>
+    </figure>
+
+    <!-- scrolly cards -->
+    <article id="strikes-cards">
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds1" data-img="graphics/img/0 strikes_acled_filtered_nobuffer.png">
+            <p>Since the beginning of the war, 96% of Ukraine's strikes (air and drone strikes as well as shellings,
+                artillery and missile attacks) took place within 100km of its borders.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds2" data-img="graphics/img/0 strikes_acled_filtered2022.png">
+            <p>However, Ukraine's long-range campaign has ramped up significantly over the course of the war. While in
+                2022, it contudcted a
+                modest 5 strikes 100km or more beyond it's borders...</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds3" data-img="graphics/img/0 strikes_acled_filtered2023.png">
+            <p>...that figure increased 14-fold in 2023...</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds4" data-img="graphics/img/0 strikes_acled_filtered2024.png">
+            <p>...and a further four-fold to 299 in 2024.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds5" data-img="graphics/img/0 strikes_acled_filtered2025.png">
+            <p>The current annual peak of 661 in 2025...</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds6" data-img="graphics/img/0 strikes_acled_filtered2026.png">
+            <p>...is set to be eclipsed in 2026, with nearly 400 events reported by mid-June.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <!-- trailing spacer — hidden -->
+        <section class="section" id="ds7" style="opacity:0">&nbsp;</section>
+
+    </article>
+
+</div>
+
+
+<div class="scrolly-unit" style="margin:0 10px 0 0;">
+
+    <!-- sticky graphic -->
+    <figure class="sticky">
+        <div class="scrolly-graphic">
+            <img src="" alt="Russian strikes on Ukraine">
+        </div>
+    </figure>
+
+    <!-- scrolly cards 2 -->
+    <article id="strikes-cards2">
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds10" data-img="graphics/img/0 strikes_acled_monthly.png">
+            <p>Given the steady increase in Ukrainian strikes on Russian territory...</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds11" data-img="graphics/img/0 strikes_acled_monthly_inorout.png">
+            <p>...the number of long-range strikes seems almost insignificant.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds12" data-img="graphics/img/0 strikes_acled_annual_inorout_filled.png">
+            <p>However, upon closer inspection, year-on-year growth proves to be marked - and generally above the growth
+                rates of strikes closer to the border.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <!-- trailing spacer — hidden -->
+        <section class="section" id="ds14" style="opacity:0">&nbsp;</section>
+
+    </article>
+
+</div>
+
+
+
+<h2 class="highlight">Destruction and recovery</h2>
+
+<div class="scrolly-unit" style="margin:0 10px 0 0;">
+
+    <!-- sticky graphic -->
+    <figure class="sticky">
+        <div class="scrolly-graphic">
+            <img src="" alt="Russian strikes on Ukraine">
+        </div>
+    </figure>
+
+    <!-- scrolly cards 3 -->
+    <article id="strikes-cards3">
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds20" data-img="graphics/img/0 strikes_acled_infra_time.png">
+            <p>Russian attacks on civilian infrastructure have increased over time.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds21" data-img="graphics/img/0 strikes_acled_infra_share.png">
+            <p>Since the beginning of the war, an average 70% of Russian attacks hit residential infrastructure.
+                Meanwhile, the targeting of energy infrastructure, after a relatively lean 2023, has become a mainstay
+                of Russian attacks.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds22" data-img="graphics/img/0 strikes_acled_infra_Education.png">
+            <p>Frontline areas - and Melitopol and the Donbass in particular - bear the brunt of attacks on civilian
+                infrastructure.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds23" data-img="graphics/img/0 strikes_acled_infra_Energy.png">
+            <p>This holds true particularly for attacks on energy infrastructure.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds24" data-img="graphics/img/0 strikes_acled_infra_Health.png">
+            <p>Beyond the frontline, Kharkiv, Sumy and Kyiv figure prominently.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds25" data-img="graphics/img/0 strikes_acled_infra_Residential.png">
+            <p>Frontline settlements are hit particularly hard where entire villages and towns have been obliterated by
+                relentless attacks.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <!-- trailing spacer — hidden -->
+        <section class="section" id="ds26" style="opacity:0">&nbsp;</section>
+
+    </article>
+
+</div>
+
+<p>This translates into significant destruction.</p>
+
+
+<div class="scrolly-unit" style="margin:0 10px 0 0;">
+
+    <!-- sticky graphic -->
+    <figure class="sticky">
+        <div class="scrolly-graphic">
+            <img src="" alt="Russian strikes on Ukraine">
+        </div>
+    </figure>
+
+    <!-- scrolly cards 4 -->
+    <article id="strikes-cards4">
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds20" data-img="graphics/img/5 damage and needs_dotmap_Damage.png">
+            <p>As of ???, total damage (to ???) was estimated at $195 billion. Donetska oblast accounts for about one
+                quarter of that, and Kharkivska and Zaporizka oblasts together for another quarter.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <section class="section" id="ds21" data-img="graphics/img/5 damage and needs_dotmap_Needs.png">
+            <p>Needs are multiples of that: nearly $600 billion for the whole of Ukraine, with Donetska, Kharkivska,
+                Zaporizka and Kyivska oblasts nearly accounting for half.</p>
+        </section>
+
+        <div class="space">&nbsp;</div>
+
+        <!-- trailing spacer — hidden -->
+        <section class="section" id="ds26" style="opacity:0">&nbsp;</section>
+
+    </article>
+
+</div>
+
+<script>
+    function updateUnits() {
+        document.querySelectorAll(".scrolly-unit").forEach(function (unit) {
+            var cards = Array.from(unit.querySelectorAll(".section[data-img]"));
+            var img = unit.querySelector(".scrolly-graphic img");
+            if (!img || !cards.length) return;
+
+            var active = cards[0]; // default: first card
+            for (var i = cards.length - 1; i >= 0; i--) {
+                if (cards[i].getBoundingClientRect().top < window.innerHeight * 0.6) {
+                    active = cards[i];
+                    break;
+                }
+            }
+            var src = active.getAttribute("data-img");
+            if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+        });
+    }
+
+    // initialise on load, update on scroll
+    updateUnits();
+    window.addEventListener("scroll", updateUnits, { passive: true });
+</script>
