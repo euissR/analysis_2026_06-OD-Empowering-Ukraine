@@ -94,7 +94,7 @@
         pointer-events: none;
     }
 
-    .tile-bg .tile {
+    .tile {
         position: absolute;
         width: 80px;
         height: 45px;
@@ -117,10 +117,14 @@
         margin-top: 0;
     }
 
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
     .space {
+        position: relative;
+        overflow: hidden;
         margin: 0;
-        height: 50vh;
-        width: 0;
+        height: 20vh;
+        width: 100%;
         pointer-events: none;
     }
 </style>
@@ -186,7 +190,7 @@
             </p>
         </div>
     </div>
-    <div class="space">&nbsp;</div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
 </div>
 
 <!-- ── WHAT ─────────────────────────────────────────────────── -->
@@ -245,7 +249,7 @@
             </p>
         </div>
     </div>
-    <div class="space">&nbsp;</div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#df3144">&nbsp;</div>
 </div>
 
 <!-- ── HOW ──────────────────────────────────────────────────── -->
@@ -294,20 +298,42 @@
             </p>
         </div>
     </div>
-    <div class="space">&nbsp;</div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
 </div>
 
 <script>
     (function () {
-        document.querySelectorAll(".tile-bg").forEach(function (bg) {
-            var color = bg.getAttribute("data-tile-color") || "#309ebe";
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
             var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
             for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
                 var tile = document.createElement("div");
                 tile.className = "tile";
-                tile.style.top = Math.random() * 90 + "%";
+                tile.style.top = top + "%";
                 tile.style.left = Math.random() * 90 + "%";
-                tile.style.background = color;
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
                 bg.appendChild(tile);
             }
         });
