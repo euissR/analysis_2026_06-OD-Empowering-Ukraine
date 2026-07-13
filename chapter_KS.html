@@ -1,0 +1,349 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Introduction, then three sections — Why / What / How.
+     Each section heading sticks to the top of the viewport until the
+     next section's heading scrolls up and takes its place. Behind each
+     section's text, a handful of theme-coloured tiles are scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours and sticky behaviour are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS: STACKING STICKY (JS-driven) ────────
+       Native CSS position:sticky is fragile once this markup is
+       dropped into a CMS page — any ancestor with overflow other
+       than visible, or a transform/filter/will-change, silently
+       breaks it, and we don't control Drupal's wrapper markup.
+       Instead, a scroll listener below toggles .is-fixed /
+       .is-bottom on each h2.highlight to pin it to the top of the
+       viewport while its section scrolls past, then park it at
+       the section's bottom edge once the section is done — same
+       visual effect, but immune to ancestor styling.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+        background: #fff;
+        z-index: 5;
+    }
+
+    h2.highlight.is-fixed {
+        position: fixed;
+        top: 0;
+    }
+
+    h2.highlight.is-bottom {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe50;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7580;
+    }
+
+    .highlight-how::before {
+        background-color: #df314450;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile-bg .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.25;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    .space {
+        margin: 0;
+        height: 50vh;
+        width: 0;
+        pointer-events: none;
+    }
+</style>
+
+<h1>Modular Support Framework: Reinforcing Kyiv's new security partnerships in the Gulf</h1>
+<i>by Katarzyna Sidło</i>
+<hr>
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>Ukraine’s outreach to the Middle East, North Africa and the Gulf is not just wartime diplomacy, but a strategic
+    project with both immediate and long-term aims. Kyiv is trying to convert battlefield experience into resources,
+    diplomatic capital, defence-industrial investment and wider political relevance. Ukraine is seeking to deepen
+    cooperation with Gulf partners by sharing expertise in countering drones and adapting air defences, maritime
+    security experience and lessons in electronic warfare This forms part of a wider effort to strengthen Ukraine’s
+    position while the war with Russia continues.
+</p>
+<p>
+    The challenge is implementation. Early agreements and announcements created momentum, but translating them into
+    contracts, training programmes, co-production projects, fuel-supply arrangements and operational cooperation will be
+    harder.
+</p>
+<p>
+    This is where the EU can come in, providing an opt-in support mechanism that Kyiv can activate at its discretion,
+    strengthening implementation without diluting Ukrainian ownership. Brussels’ role should be to help Ukraine build
+    partnerships that are durable, transparent and deliver practical value for Kyiv’s war effort, while also advancing
+    broader European interests in counter-drone innovation, maritime security and defence-industrial cooperation.
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-why">Why</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>Ukraine needs resources, while Gulf states need practical protection. The scale of their exposure
+                differs, but the recent US-Israel-Iran war underscored their vulnerability to drone and missile attacks
+                targeting airspace, energy infrastructure, ports, shipping lanes and critical civilian systems. This
+                gives Ukraine’s outreach a clear logic of reciprocal benefit. Kyiv can offer hard-won expertise in
+                countering Iranian-designed drones, adapting air-defence systems and safeguarding critical
+                infrastructure. In return, Zelensky wants ‘diesel and other critical supplies’, energy cooperation,
+                investment and future contracts, support for air-defence capabilities, and joint defence-industrial
+                projects, including co-production.
+            </p>
+            <p>
+                Second, Kyiv needs diplomatic room for manoeuvre. While it should not expect Gulf states to side openly
+                with Ukraine against Russia, it can alter how these states engage with Kyiv. If Ukraine can help protect
+                Gulf infrastructure and shipping interests, it becomes more than a country seeking support in a war
+                against a large neighbour; it becomes a credible security partner. That may translate into discreet
+                diplomatic backing, better access to Gulf networks with influence in Washington, and greater willingness
+                to push back against Russian propaganda.
+            </p>
+            <p>
+                Third, Ukraine has an interest in turning battlefield innovation into long-term industrial power. Its
+                drone ecosystem is fast, adaptive and combat-tested. Gulf demand can help Ukrainian companies scale up
+                production and investment. However, it also creates risks: better-funded partners could capture
+                Ukrainian intellectual property, draw scarce expertise away from the front, or reduce strategic
+                cooperation to a series of fragmented, opaque commercial deals.
+            </p>
+            <p>
+                For the EU, supporting Ukraine’s opening to the Gulf serves several strategic interests: strengthening
+                Ukraine’s defences while protecting Gulf energy flows, securing maritime routes, enhancing counter-drone
+                capabilities and reducing Russian and Iranian leverage.
+            </p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-what">What</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>The EU should establish a backing mechanism to support Ukraine’s outreach to the Gulf. This mechanism
+                would not replace Kyiv’s bilateral channels but instead give Ukraine access to EU diplomatic,
+                industrial, maritime and governance tools such as TAIEX, Twinning, and EUNAVFOR Operation Aspides,
+                wherever these make Gulf cooperation easier to implement and safeguard Ukraine’s long-term interests.
+                The mechanism would rest on four pillars: counter-drone cooperation, defence-industrial scaling,
+                maritime security cooperation and governance safeguards.
+            </p>
+            <p>
+                The first pillar would support Ukraine’s provision of counter-drone expertise to Gulf partners. Ukraine
+                would remain the lead actor, providing lessons learned, advisory support, training and selected
+                technologies related to drone interception, electronic warfare, mobile air-defence teams and critical
+                infrastructure protection. Gulf partners would contribute financing, procurement, energy support and
+                industrial investment. The EU’s role would be to help package this cooperation in ways that strengthen
+                Ukraine’s defence-industrial base, further protect its know-how beyond safeguards already in place, and
+                remain compatible with its future integration into EU defence-industrial frameworks and Europe’s broader
+                security cooperation with Gulf partners.
+            </p>
+            <p>
+                The second pillar would focus on defence-industrial development. Ukraine should avoid simple
+                off-the-shelf sales wherever possible. Instead, it should prioritise joint production, long-term
+                contracts, maintenance hubs, technology partnerships and investment in domestic production capacity. EU
+                support should help Ukrainian companies cooperate with both Gulf and European industry while protecting
+                Ukrainian intellectual property and ensuring that cooperation does not facilitate the transfer of
+                Ukrainian know-how to better-capitalised partners.
+            </p>
+            <p>
+                The third pillar would add a maritime security dimension. This should build on what has already been
+                discussed in Ukraine’s contacts with both European and Gulf partners: Kyiv has offered to share
+                expertise from the Black Sea on keeping maritime routes open and supporting freedom of navigation in the
+                Strait of Hormuz after hostilities cease. Ukraine’s experience in the Black Sea, including sea drones,
+                maritime domain awareness, route protection and asymmetric operations against a stronger naval
+                adversary, could also strengthen longer-term maritime security cooperation between Ukraine, the EU and
+                Gulf partners, both in the context of the Strait of Hormuz and the Red Sea, including through Operation
+                Aspides once the current crisis is over.
+            </p>
+            <p>
+                The final pillar would focus on governance safeguards and alignment with Ukraine’s future integration
+                into European defence-industrial frameworks. This could become one of the most important areas for EU
+                support. Fast-moving defence deals involving drones, private contractors, co-production and
+                energy-linked arrangements can create risks of opaque procurement, inflated contract values, undue
+                influence by intermediaries and unclear ownership of jointly developed technologies. The EU could help
+                Ukraine put in place transparent procurement standards, beneficial ownership checks, audit trails,
+                anti-bribery clauses, intellectual property (IP) protection, end-use monitoring and re-export controls.
+                These safeguards should be presented not as a sign of distrust, but as a way to protect Ukraine’s
+                reputation, defence-industrial base and future integration into the EU. Aligning such arrangements with
+                EU practice and legislation from the outset would help ensure that Ukraine’s external defence
+                partnerships reinforce, rather than complicate, its path toward membership.
+            </p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-how">How</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#df3144"></div>
+        <div class="scrolly-card">
+            <p>The EU should leverage its deep institutional ties, broad diplomatic experience and greater economic
+                weight in the Gulf to strengthen Kyiv’s security partnerships while preserving Ukrainian ownership. This
+                would help Ukraine avoid overstretch while ensuring that its regional outreach develops in ways
+                consistent with wider European strategic priorities and Ukraine’s own European ambitions.
+                The support mechanism would not require a new EU instrument. Instead it would bring together existing
+                enlargement, defence-industrial, technical-assistance and EU-Gulf cooperation instruments in support of
+                Ukraine’s outreach efforts. A practical first step would be to establish a small, Ukraine-led
+                implementation cell to map existing contacts with Gulf partners and identify where EU support would add
+                value.
+            </p>
+            <p>
+                TAIEX could provide rapid expert missions and peer-to-peer support to help design the administrative and
+                legal frameworks for future agreements, including procurement standards, IP protection, export controls
+                and end-use monitoring. Twinning could then build on this work by helping Ukrainian institutions to
+                develop the long-term capacity needed to manage complex defence-industrial partnerships.
+                The backing mechanism can also be connected to BraveTech EU as the broader defence-innovation channel.
+                As a joint EU-Ukraine initiative designed to accelerate battlefield-driven defence solutions and deepen
+                integration with Ukraine’s defence industry, BraveTech EU could help ensure that Ukraine’s security
+                partnerships with Gulf states reinforce, rather than develop separately from, EU-Ukraine industrial
+                cooperation on cutting-edge defence technologies. It could identify technologies suitable for joint
+                development, testing, certification and scaling; connect Ukrainian firms with European partners; and
+                flag risks around technology transfer, operational know-how and future procurement pathways. Within this
+                broader framework, the emerging EU-Ukraine Drone Alliance could provide a dedicated forum for
+                cooperation on drone and counter-drone capabilities, including standards, certification,
+                interoperability and the protection of operational know-how.
+            </p>
+            <p>
+                The EU could also use existing regional and maritime formats. The EU-Gulf Cooperation Council Regional
+                Security Dialogue provides a diplomatic channel for discussing critical infrastructure protection,
+                counter-drone resilience, standards and maritime security with Gulf partners. EUNAVFOR Operation
+                Aspides, meanwhile, provides the EU with an established operational framework for defensive maritime
+                security and the protection of freedom of navigation in the Red Sea, the Indian Ocean and the Gulf. As a
+                next step, the EU and Ukraine could explore how Ukraine might contribute lessons learned, liaison
+                expertise or other forms of third-state support to relevant CSDP maritime security activities, including
+                on drones, air defence threats and maritime domain awareness. This would allow Ukraine to play a role in
+                regional security around the Arabian Gulf while building closer operational links EU security
+                structures.
+            </p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<script>
+    (function () {
+        document.querySelectorAll(".tile-bg").forEach(function (bg) {
+            var color = bg.getAttribute("data-tile-color") || "#309ebe";
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = Math.random() * 90 + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = color;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStickyHeadings() {
+            sections.forEach(function (section) {
+                var heading = section.querySelector("h2.highlight");
+                if (!heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var headingHeight = heading.offsetHeight;
+
+                heading.classList.remove("is-fixed", "is-bottom");
+                heading.style.left = "";
+                heading.style.width = "";
+
+                if (sectionRect.top > 0) {
+                    return; // section hasn't reached the top yet — normal flow
+                }
+                if (sectionRect.bottom <= headingHeight) {
+                    heading.classList.add("is-bottom"); // section scrolled past — park at its bottom
+                } else {
+                    heading.classList.add("is-fixed"); // section in view — pin to top of viewport
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                }
+            });
+        }
+
+        updateStickyHeadings();
+        window.addEventListener("scroll", updateStickyHeadings, { passive: true });
+        window.addEventListener("resize", updateStickyHeadings);
+        window.addEventListener("load", updateStickyHeadings);
+    })();
+</script>

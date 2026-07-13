@@ -1,0 +1,220 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Introduction, then three sections — Why / What / How.
+     Each section heading sticks to the top of the viewport until the
+     next section's heading scrolls up and takes its place. Behind each
+     section's text, a handful of theme-coloured tiles are scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours and sticky behaviour are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS: STACKING STICKY (JS-driven) ────────
+       Native CSS position:sticky is fragile once this markup is
+       dropped into a CMS page — any ancestor with overflow other
+       than visible, or a transform/filter/will-change, silently
+       breaks it, and we don't control Drupal's wrapper markup.
+       Instead, a scroll listener below toggles .is-fixed /
+       .is-bottom on each h2.highlight to pin it to the top of the
+       viewport while its section scrolls past, then park it at
+       the section's bottom edge once the section is done — same
+       visual effect, but immune to ancestor styling.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+        background: #fff;
+        z-index: 5;
+    }
+
+    h2.highlight.is-fixed {
+        position: fixed;
+        top: 0;
+    }
+
+    h2.highlight.is-bottom {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 10%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe50;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7580;
+    }
+
+    .highlight-how::before {
+        background-color: #df314450;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile-bg .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.25;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    .space {
+        margin: 0;
+        height: 80vh;
+        width: 0;
+        pointer-events: none;
+    }
+</style>
+
+<h1>[Chapter title]</h1>
+<i>by [Author name], [Author title], EUISS</i>
+<hr>
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>[Introduction text — frames the problem and previews the chapter's argument.]</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-why">Why</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>[Full "why" section text.]</p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-what">What</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>[Full "what" section text.]</p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <h2 class="highlight highlight-how">How</h2>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#df3144"></div>
+        <div class="scrolly-card">
+            <p>[Full "how" section text.]</p>
+        </div>
+    </div>
+    <div class="space">&nbsp;</div>
+</div>
+
+<script>
+    (function () {
+        document.querySelectorAll(".tile-bg").forEach(function (bg) {
+            var color = bg.getAttribute("data-tile-color") || "#309ebe";
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = Math.random() * 90 + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = color;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStickyHeadings() {
+            sections.forEach(function (section) {
+                var heading = section.querySelector("h2.highlight");
+                if (!heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var headingHeight = heading.offsetHeight;
+
+                heading.classList.remove("is-fixed", "is-bottom");
+                heading.style.left = "";
+                heading.style.width = "";
+
+                if (sectionRect.top > 0) {
+                    return; // section hasn't reached the top yet — normal flow
+                }
+                if (sectionRect.bottom <= headingHeight) {
+                    heading.classList.add("is-bottom"); // section scrolled past — park at its bottom
+                } else {
+                    heading.classList.add("is-fixed"); // section in view — pin to top of viewport
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                }
+            });
+        }
+
+        updateStickyHeadings();
+        window.addEventListener("scroll", updateStickyHeadings, { passive: true });
+        window.addEventListener("resize", updateStickyHeadings);
+        window.addEventListener("load", updateStickyHeadings);
+    })();
+</script>
