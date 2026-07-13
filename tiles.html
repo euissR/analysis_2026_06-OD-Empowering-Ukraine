@@ -46,8 +46,25 @@
         /* border: 1px solid #c6c6c6; */
     }
 
+    /* Drupal's editor reformats pasted markup on save (adds a stray <br>
+       after the image here, wraps it in a <p> there), so the wrap's flow
+       height is never reliable. Stack every direct child in one grid
+       cell instead of relying on flow height + position:absolute — that
+       way whatever extra tags get injected are overlaid, not stacked. */
     .chapter-card-img-wrap {
-        position: relative;
+        display: grid;
+    }
+
+    .chapter-card-img-wrap>* {
+        grid-area: 1 / 1;
+    }
+
+    .chapter-card-img-wrap br {
+        display: none;
+    }
+
+    .chapter-card-img-wrap p {
+        margin: 0;
     }
 
     .chapter-card-img {
@@ -57,9 +74,8 @@
     }
 
     .chapter-card-title {
-        position: absolute;
-        bottom: 0;
-        left: 0;
+        align-self: end;
+        justify-self: start;
         margin: 0;
         padding: 0 0.4em 0 0 !important;
         background: #fff;

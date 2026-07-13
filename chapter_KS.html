@@ -1,14 +1,13 @@
 <!-- ═══════════════════════════════════════════════════════════
      CHAPTER TEMPLATE
      Structure: Introduction, then three sections — Why / What / How.
-     Each section heading sticks to the top of the viewport until the
-     next section's heading scrolls up and takes its place. Behind each
-     section's text, a handful of theme-coloured tiles are scattered
-     at random on page load.
+     Each section heading is a 1200×600 image (Why/What/How), with the
+     section's full text sitting below over a handful of theme-coloured
+     tiles scattered at random on page load.
 
      To use: duplicate this file per chapter, replace the bracketed
      placeholders, and drop in the section text. Nothing else needs
-     to change — colours and sticky behaviour are wired up already.
+     to change — colours are wired up already.
 ═══════════════════════════════════════════════════════════ -->
 
 <!-- ── FONTS ────────────────────────────────────────────────── -->
@@ -24,16 +23,9 @@
         overflow-x: hidden;
     }
 
-    /* ── SECTION HEADINGS: STACKING STICKY (JS-driven) ────────
-       Native CSS position:sticky is fragile once this markup is
-       dropped into a CMS page — any ancestor with overflow other
-       than visible, or a transform/filter/will-change, silently
-       breaks it, and we don't control Drupal's wrapper markup.
-       Instead, a scroll listener below toggles .is-fixed /
-       .is-bottom on each h2.highlight to pin it to the top of the
-       viewport while its section scrolls past, then park it at
-       the section's bottom edge once the section is done — same
-       visual effect, but immune to ancestor styling.
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only) — no sticky behaviour.
     ────────────────────────────────────────────────────────── */
     .chapter-section {
         position: relative;
@@ -43,20 +35,12 @@
     h2.highlight {
         margin: 0;
         padding: 0.5em 0;
-        background: #fff;
-        z-index: 5;
     }
 
-    h2.highlight.is-fixed {
-        position: fixed;
-        top: 0;
-    }
-
-    h2.highlight.is-bottom {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
     }
 
     h2.highlight::before {
@@ -155,7 +139,9 @@
 
 <!-- ── WHY ──────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-why">Why</h2>
+    <h2 class="highlight highlight-why"><img
+            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+            height="600" alt="Why"></h2>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#309ebe"></div>
         <div class="scrolly-card">
@@ -195,7 +181,9 @@
 
 <!-- ── WHAT ─────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-what">What</h2>
+    <h2 class="highlight highlight-what"><img
+            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+            height="600" alt="What"></h2>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#ffde75"></div>
         <div class="scrolly-card">
@@ -254,7 +242,9 @@
 
 <!-- ── HOW ──────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-how">How</h2>
+    <h2 class="highlight highlight-how"><img
+            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+            height="600" alt="How"></h2>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#df3144"></div>
         <div class="scrolly-card">
@@ -337,39 +327,5 @@
                 bg.appendChild(tile);
             }
         });
-    })();
-
-    (function () {
-        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
-
-        function updateStickyHeadings() {
-            sections.forEach(function (section) {
-                var heading = section.querySelector("h2.highlight");
-                if (!heading) return;
-
-                var sectionRect = section.getBoundingClientRect();
-                var headingHeight = heading.offsetHeight;
-
-                heading.classList.remove("is-fixed", "is-bottom");
-                heading.style.left = "";
-                heading.style.width = "";
-
-                if (sectionRect.top > 0) {
-                    return; // section hasn't reached the top yet — normal flow
-                }
-                if (sectionRect.bottom <= headingHeight) {
-                    heading.classList.add("is-bottom"); // section scrolled past — park at its bottom
-                } else {
-                    heading.classList.add("is-fixed"); // section in view — pin to top of viewport
-                    heading.style.left = sectionRect.left + "px";
-                    heading.style.width = sectionRect.width + "px";
-                }
-            });
-        }
-
-        updateStickyHeadings();
-        window.addEventListener("scroll", updateStickyHeadings, { passive: true });
-        window.addEventListener("resize", updateStickyHeadings);
-        window.addEventListener("load", updateStickyHeadings);
     })();
 </script>
