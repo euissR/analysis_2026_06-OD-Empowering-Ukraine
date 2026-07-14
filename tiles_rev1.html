@@ -27,7 +27,20 @@
             gap: 2rem;
         }
 
+        /* Intro blurb fills the column to the left of the intro tile */
+        .intro-blurb {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        /* Intro tile sits to the right, same size as the chapter tiles */
         .chapter-card--intro {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        /* Spacer sits on its own full-width row between intro and chapters */
+        .chapter-grid-spacer {
             grid-column: 1 / -1;
         }
     }
@@ -47,14 +60,55 @@
         overflow: hidden;
         margin-bottom: 1.5rem;
         padding: 1em;
-        /* border: 1px solid #c6c6c6; */
+        box-shadow: 0 2px 4px rgba(9, 49, 142, 0.08), 0 0 10px rgba(9, 49, 142, 0.04), 0 4px 5px rgba(9, 49, 142, 0.04), 0 -4px 4px rgba(9, 49, 142, 0.04);
     }
 
-    /* Drupal's editor reformats pasted markup on save (adds a stray <br>
-       after the image here, wraps it in a <p> there), so the wrap's flow
-       height is never reliable. Stack every direct child in one grid
-       cell instead of relying on flow height + position:absolute — that
-       way whatever extra tags get injected are overlaid, not stacked. */
+    /* ── INTRO BLURB (text beside the intro tile) ──────────── */
+    .intro-blurb {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        padding: 1em;
+    }
+
+    /* ── SPACER BETWEEN INTRO AND CHAPTER GRID ─────────────── */
+    .chapter-grid-spacer {
+        text-align: center;
+        margin: 1rem 0 2rem;
+    }
+
+    .chapter-grid-spacer h3 {
+        margin: 0 0 0.3em;
+    }
+
+    .chapter-grid-spacer p {
+        margin: 0;
+    }
+
+    /* Numbered heading, placed above the tile image. align-items: baseline
+       keeps the number on the title's first-line baseline even when the
+       title wraps onto extra lines. */
+    .chapter-card-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6em;
+        margin-bottom: 0.6em;
+    }
+
+    .chapter-card-number {
+        display: inline-block;
+        flex-shrink: 0;
+        width: 1.8em;
+        height: 1.8em;
+        line-height: 1.8em;
+        text-align: center;
+        background: #1d3956;
+        color: #fff;
+        font-family: 'PT Sans Narrow', sans-serif;
+        font-weight: 700;
+    }
+
     .chapter-card-img-wrap {
         display: grid;
     }
@@ -78,11 +132,8 @@
     }
 
     .chapter-card-title {
-        align-self: end;
-        justify-self: start;
         margin: 0;
-        padding: 0 0.4em 0 0 !important;
-        background: #fff;
+        padding: 0 !important;
     }
 
     .chapter-card-subtitle {
@@ -92,6 +143,25 @@
 
     .chapter-card p {
         margin-top: 0;
+    }
+
+    .chapter-card-readmore {
+        display: inline-block;
+        margin-top: 0.5em;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .chapter-card-readmore:hover {
+        text-decoration: underline;
+    }
+
+    /* Wraps number + title + image + subtitle in a single click target,
+       without disturbing the flex layout of .chapter-card. */
+    .chapter-card-link {
+        display: contents;
+        color: inherit;
+        text-decoration: none;
     }
 </style>
 
@@ -117,57 +187,73 @@
 ────────────────────────────────────────────────────────────── -->
 <div class="author-profiles-grid">
 
+    <!-- INTRO BLURB -->
+    <div class="intro-blurb">
+        <p class="body_4-body">Three years into Russia's full-scale invasion, survival is no longer the only
+            question facing Ukraine — its long-term empowerment is. This introduction sets out why the EU needs
+            a coherent strategy spanning sanctions enforcement, defence-industrial cooperation, enlargement and
+            reconstruction, and frames the eleven chapters that follow as a practical agenda for getting
+            <span class="body_0-no-break">there.</span>
+        </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read introduction →</a>
+    </div>
+
     <!-- INTRO -->
     <div class="chapter-card chapter-card--intro">
-        <a href="#" target="_blank">
-            <a href="#" target="_blank">
-                <div class="chapter-card-img-wrap">
-                    <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                    <img class="chapter-card-img"
-                        src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODintro.jpg" alt="">
-                    <h4 class="chapter-card-title">Introduction</h4>
-                </div>
-            </a>
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <h4 class="chapter-card-title">Introduction</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODintro.jpg" alt="">
+            </div>
             <h5 class="chapter-card-subtitle">From wartime solidarity to structural support</h5>
-            <p class="body_4-body">Three years into Russia's full-scale invasion, survival is no longer the only
-                question facing Ukraine — its long-term empowerment is. This introduction sets out why the EU needs
-                a coherent strategy spanning sanctions enforcement, defence-industrial cooperation, enlargement and
-                reconstruction, and frames the eleven chapters that follow as a practical agenda for getting
-                <span class="body_0-no-break">there.</span>
-            </p>
+        </a>
+    </div>
+
+    <!-- SPACER -->
+    <div class="chapter-grid-spacer">
+        <h3>Explore the chapters</h3>
+        <p class="body_4-body">Click on a chapter to dive into each priority in depth.</p>
     </div>
 
     <!-- CHAPTER 1 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <a href="#" target="_blank">
-                <div class="chapter-card-img-wrap">
-                    <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                    <img class="chapter-card-img"
-                        src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/NK.jpg" alt="">
-                    <h4 class="chapter-card-title">Resilience starts at home</h4>
-                </div>
-            </a>
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">1</span>
+                <h4 class="chapter-card-title">Resilience starts at home</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/NK.jpg" alt="">
+            </div>
             <h5 class="chapter-card-subtitle">Invest in Ukraine’s diaspora to build trust in the long term</h5>
-            <p class="body_4-body">The EU has
-                imposed eleven rounds of sanctions on Russian energy, but significant loopholes
-                remain. This chapter examines how the EU can close
-                the shadow-fleet gap, bring Rosatom under full sanctions coverage, and use its import
-                market power to accelerate the erosion of Russian hydrocarbon
-                <span class="body_0-no-break">revenues.</span>
-            </p>
+        </a>
+        <p class="body_4-body">The EU has
+            imposed eleven rounds of sanctions on Russian energy, but significant loopholes
+            remain. This chapter examines how the EU can close
+            the shadow-fleet gap, bring Rosatom under full sanctions coverage, and use its import
+            market power to accelerate the erosion of Russian hydrocarbon
+            <span class="body_0-no-break">revenues.</span>
+        </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 1 →</a>
     </div>
 
     <!-- CHAPTER 2 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">2</span>
+                <h4 class="chapter-card-title">Stopping the drain</h4>
+            </div>
             <div class="chapter-card-img-wrap">
                 <img class="chapter-card-img"
                     src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/RM.jpg" alt="">
-                <h4 class="chapter-card-title">Stopping the drain</h4>
             </div>
+            <h5 class="chapter-card-subtitle">Countering Russia’s recruitment in Africa</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Countering Russia’s recruitment in Africa</h5>
         <p class="body_4-body">
             Ukraine has become the world's most intensive testing ground for modern warfare.
             <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
@@ -175,19 +261,22 @@
             drones and electronic-warfare systems — and what institutional frameworks would
             unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 2 →</a>
     </div>
 
     <!-- CHAPTER 3 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <div class="chapter-card-img-wrap">
-                <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/GS.jpg" alt="">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">3</span>
                 <h4 class="chapter-card-title">Keep the U.S. involved</h4>
             </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/GS.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Warfighting lessons as an export article</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Warfighting lessons as an export article</h5>
         <p class="body_4-body">The EU has
             imposed eleven rounds of sanctions on Russian energy, but significant loopholes
             remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
@@ -195,18 +284,22 @@
             market power to accelerate the erosion of Russian hydrocarbon
             <span class="body_0-no-break">revenues.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 3 →</a>
     </div>
 
     <!-- CHAPTER 4 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">4</span>
+                <h4 class="chapter-card-title">China and the Reconstruction Risks Playbook</h4>
+            </div>
             <div class="chapter-card-img-wrap">
                 <img class="chapter-card-img"
                     src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/TR.jpg" alt="">
-                <h4 class="chapter-card-title">China and the Reconstruction<br>Risks Playbook</h4>
             </div>
+            <h5 class="chapter-card-subtitle">missing subtitle</h5>
         </a>
-        <h5 class="chapter-card-subtitle">missing subtitle</h5>
         <p class="body_4-body">
             Ukraine has become the world's most intensive testing ground for modern warfare.
             <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
@@ -214,19 +307,22 @@
             drones and electronic-warfare systems — and what institutional frameworks would
             unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 4 →</a>
     </div>
 
     <!-- CHAPTER 5 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <div class="chapter-card-img-wrap">
-                <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/BZ.jpg" alt="">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">5</span>
                 <h4 class="chapter-card-title">Get real on the Enlargement</h4>
             </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/BZ.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to do staged accession right</h5>
         </a>
-        <h5 class="chapter-card-subtitle">How to do staged accession right</h5>
         <p class="body_4-body">The EU has
             imposed eleven rounds of sanctions on Russian energy, but significant loopholes
             remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
@@ -234,18 +330,22 @@
             market power to accelerate the erosion of Russian hydrocarbon
             <span class="body_0-no-break">revenues.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 5 →</a>
     </div>
 
     <!-- CHAPTER 6 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">6</span>
+                <h4 class="chapter-card-title">Mr. Zelenskyy goes to MENA</h4>
+            </div>
             <div class="chapter-card-img-wrap">
                 <img class="chapter-card-img"
                     src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/KS.jpg" alt="">
-                <h4 class="chapter-card-title">Mr. Zelenskyy goes to MENA</h4>
             </div>
+            <h5 class="chapter-card-subtitle">Security outreach, strategic gains, and European implications</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Security outreach, strategic gains, and European implications</h5>
         <p class="body_4-body">
             Ukraine has become the world's most intensive testing ground for modern warfare.
             <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
@@ -253,19 +353,22 @@
             drones and electronic-warfare systems — and what institutional frameworks would
             unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 6 →</a>
     </div>
 
     <!-- CHAPTER 7 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <div class="chapter-card-img-wrap">
-                <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/CH.jpg" alt="">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">7</span>
                 <h4 class="chapter-card-title">Clean and distributed</h4>
             </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/CH.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Starting again on Ukraine’s energy system</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Starting again on Ukraine’s energy system</h5>
         <p class="body_4-body">The EU has
             imposed eleven rounds of sanctions on Russian energy, but significant loopholes
             remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
@@ -273,18 +376,22 @@
             market power to accelerate the erosion of Russian hydrocarbon
             <span class="body_0-no-break">revenues.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 7 →</a>
     </div>
 
     <!-- CHAPTER 8 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">8</span>
+                <h4 class="chapter-card-title">Defence industrial integration</h4>
+            </div>
             <div class="chapter-card-img-wrap">
                 <img class="chapter-card-img"
                     src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODLS.jpg" alt="">
-                <h4 class="chapter-card-title">Defence industrial integration</h4>
             </div>
+            <h5 class="chapter-card-subtitle">How to move further and faster</h5>
         </a>
-        <h5 class="chapter-card-subtitle">How to move further and faster</h5>
         <p class="body_4-body">
             Ukraine has become the world's most intensive testing ground for modern warfare.
             <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
@@ -292,19 +399,22 @@
             drones and electronic-warfare systems — and what institutional frameworks would
             unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 8 →</a>
     </div>
 
     <!-- CHAPTER 9 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <div class="chapter-card-img-wrap">
-                <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODflow.jpg" alt="">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">9</span>
                 <h4 class="chapter-card-title">Track and manage</h4>
             </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODflow.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to make most of reconstruction funding</h5>
         </a>
-        <h5 class="chapter-card-subtitle">How to make most of reconstruction funding</h5>
         <p class="body_4-body">The EU has
             imposed eleven rounds of sanctions on Russian energy, but significant loopholes
             remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
@@ -312,18 +422,22 @@
             market power to accelerate the erosion of Russian hydrocarbon
             <span class="body_0-no-break">revenues.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 9 →</a>
     </div>
 
     <!-- CHAPTER 10 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">10</span>
+                <h4 class="chapter-card-title">Marshall Plan 2.0</h4>
+            </div>
             <div class="chapter-card-img-wrap">
                 <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODGS.jpg" alt="">
-                <h4 class="chapter-card-title">Marshall Plan 2.0 </h4>
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODboard.jpg" alt="">
             </div>
+            <h5 class="chapter-card-subtitle">Deconflicting EU and U.S. reconstruction support</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Deconflicting EU and U.S. reconstruction support</h5>
         <p class="body_4-body">
             Ukraine has become the world's most intensive testing ground for modern warfare.
             <a href="#" target="_blank">This chapter</a> assesses how EU-Ukraine defence
@@ -331,19 +445,22 @@
             drones and electronic-warfare systems — and what institutional frameworks would
             unlock the scale of cooperation<span class="body_0-no-break"> required.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 10 →</a>
     </div>
 
     <!-- CHAPTER 11 -->
     <div class="chapter-card">
-        <a href="#" target="_blank">
-            <div class="chapter-card-img-wrap">
-                <!-- <img class="chapter-card-img" src="/sites/default/files/2026-03/template_energy.png" -->
-                <img class="chapter-card-img"
-                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODboard.jpg" alt="">
+        <a class="chapter-card-link" href="#" target="_blank">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">11</span>
                 <h4 class="chapter-card-title">Bringing the Big on Board</h4>
             </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODflow.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Better mobilisation of private equity and implementing capacity</h5>
         </a>
-        <h5 class="chapter-card-subtitle">Better mobilisation of private equity and implementing capacity</h5>
         <p class="body_4-body">The EU has
             imposed eleven rounds of sanctions on Russian energy, but significant loopholes
             remain. <a href="#" target="_blank">This chapter</a> examines how the EU can close
@@ -351,6 +468,7 @@
             market power to accelerate the erosion of Russian hydrocarbon
             <span class="body_0-no-break">revenues.</span>
         </p>
+        <a class="chapter-card-readmore" href="#" target="_blank">Read chapter 11 →</a>
     </div>
 
 </div><!-- end .author-profiles-grid (policy chapters) -->
