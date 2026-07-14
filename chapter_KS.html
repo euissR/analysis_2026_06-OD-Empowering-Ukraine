@@ -25,11 +25,26 @@
 
     /* ── SECTION HEADINGS ──────────────────────────────────────
        Each h2.highlight holds nothing but the section's image
-       (1200×600, alt text only) — no sticky behaviour.
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
     ────────────────────────────────────────────────────────── */
     .chapter-section {
         position: relative;
         margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
     }
 
     h2.highlight {
@@ -41,6 +56,19 @@
         display: block;
         max-width: 100%;
         height: auto;
+        opacity: 1;
+        transition: opacity 2s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
     }
 
     h2.highlight::before {
@@ -82,7 +110,7 @@
         position: absolute;
         width: 80px;
         height: 45px;
-        opacity: 0.25;
+        opacity: 0.15;
     }
 
     /* ── SCROLLY CARD: holds the section's full text, no styling
@@ -139,9 +167,11 @@
 
 <!-- ── WHY ──────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-why"><img
-            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
-            height="600" alt="Why"></h2>
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Why"></h2>
+    </div>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#309ebe"></div>
         <div class="scrolly-card">
@@ -181,9 +211,11 @@
 
 <!-- ── WHAT ─────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-what"><img
-            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
-            height="600" alt="What"></h2>
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="What"></h2>
+    </div>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#ffde75"></div>
         <div class="scrolly-card">
@@ -242,9 +274,11 @@
 
 <!-- ── HOW ──────────────────────────────────────────────────── -->
 <div class="chapter-section">
-    <h2 class="highlight highlight-how"><img
-            src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
-            height="600" alt="How"></h2>
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="How"></h2>
+    </div>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#df3144"></div>
         <div class="scrolly-card">
@@ -327,5 +361,40 @@
                 bg.appendChild(tile);
             }
         });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
     })();
 </script>
