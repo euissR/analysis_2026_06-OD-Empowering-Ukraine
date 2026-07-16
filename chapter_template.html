@@ -57,7 +57,7 @@
         max-width: 100%;
         height: auto;
         opacity: 1;
-        transition: opacity 3s linear;
+        transition: opacity 2s linear;
     }
 
     h2.highlight.is-stuck {
@@ -74,7 +74,7 @@
     h2.highlight::before {
         content: "";
         display: block;
-        width: 10%;
+        width: 5%;
         height: 1em;
         margin-left: -2%;
         margin-bottom: -0.6em;
@@ -82,15 +82,15 @@
 
     /* theme colours per section */
     .highlight-why::before {
-        background-color: #309ebe50;
+        background-color: #309ebe00;
     }
 
     .highlight-what::before {
-        background-color: #ffde7580;
+        background-color: #ffde7500;
     }
 
     .highlight-how::before {
-        background-color: #df314450;
+        background-color: #59595900;
     }
 
     /* ── TILE BACKDROP ─────────────────────────────────────── */
@@ -110,7 +110,7 @@
         position: absolute;
         width: 80px;
         height: 45px;
-        opacity: 0.25;
+        opacity: 0.1;
     }
 
     /* ── SCROLLY CARD: holds the section's full text, no styling
@@ -135,30 +135,45 @@
         position: relative;
         overflow: hidden;
         margin: 0;
-        height: 80vh;
+        height: 20vh;
         width: 100%;
         pointer-events: none;
     }
 </style>
 
-<h1>[Chapter title]</h1>
-<i>by [Author name], [Author title], EUISS</i>
-<hr>
-
 <!-- ── INTRODUCTION ─────────────────────────────────────────── -->
-<p>[Introduction text — frames the problem and previews the chapter's argument.]</p>
+<p>
+
+</p>
+<p>
+
+</p>
+<p>
+
+</p>
 
 <!-- ── WHY ──────────────────────────────────────────────────── -->
 <div class="chapter-section">
     <div class="heading-slot">
         <h2 class="highlight highlight-why"><img
                 src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
-                height="600" alt="Why"></h2>
+                height="600" alt="Illustration spelling out why/impetus"></h2>
     </div>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#309ebe"></div>
         <div class="scrolly-card">
-            <p>[Full "why" section text.]</p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
         </div>
     </div>
     <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
@@ -169,15 +184,29 @@
     <div class="heading-slot">
         <h2 class="highlight highlight-what"><img
                 src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
-                height="600" alt="What"></h2>
+                height="600" alt="Illustration spelling out what/idea"></h2>
     </div>
     <div class="scrolly-card-wrap">
         <div class="tile-bg" data-tile-color="#ffde75"></div>
         <div class="scrolly-card">
-            <p>[Full "what" section text.]</p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
         </div>
     </div>
-    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#df3144">&nbsp;</div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
 </div>
 
 <!-- ── HOW ──────────────────────────────────────────────────── -->
@@ -185,15 +214,23 @@
     <div class="heading-slot">
         <h2 class="highlight highlight-how"><img
                 src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
-                height="600" alt="How"></h2>
+                height="600" alt="Illustration spelling out how/instruments"></h2>
     </div>
     <div class="scrolly-card-wrap">
-        <div class="tile-bg" data-tile-color="#df3144"></div>
+        <div class="tile-bg" data-tile-color="#595959"></div>
         <div class="scrolly-card">
-            <p>[Full "how" section text.]</p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
+            <p>
+
+            </p>
         </div>
     </div>
-    <div class="space" data-tile-color="#df3144">&nbsp;</div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
 </div>
 
 <script>
