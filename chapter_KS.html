@@ -139,7 +139,94 @@
         width: 100%;
         pointer-events: none;
     }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
 </style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        Engaging Ukrainians in Europe for resilience and security
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/KS.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/luigi-scazzieri" hreflang="en">Luigi Scazzieri</a>, <a
+            href="/about-us/author/giuseppe-spatafora" hreflang="en">Giuseppe Spatafora</a> </span>
+
+</div>
+
 
 <!-- ── INTRODUCTION ─────────────────────────────────────────── -->
 <p>Ukraine’s outreach to the Middle East, North Africa and the Gulf is not just wartime diplomacy, but a strategic
@@ -392,5 +479,14 @@
         window.addEventListener("scroll", updateStuckImages, { passive: true });
         window.addEventListener("resize", updateStuckImages);
         window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
     })();
 </script>
