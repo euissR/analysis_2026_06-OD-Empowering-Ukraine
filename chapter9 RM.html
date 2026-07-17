@@ -1,0 +1,550 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Subheader, hero image, metadata, then Introduction,
+     then three sections — Why / What / How. Each section heading is
+     a 1200×600 image (Why/What/How), with the section's full text
+     sitting below over a handful of theme-coloured tiles scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
+    .space {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 20vh;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
+</style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        Countering Russian recruitment in Africa and beyond
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/RM.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/rossella-marangio" hreflang="en">Rossella Marangio</a> </span>
+
+</div>
+
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>
+    <span>Russia is no longer recruiting just mercenaries for its war machine in Ukraine; it is also recruiting
+        vulnerable job seekers. Across Africa and elsewhere, young people looking for a better future are being
+        lured into Russia’s war economy through fake jobs and false promises of scholarships, citizenship or high
+        salaries. According to the Ukrainian Coordination Headquarters for the Treatment of Prisoners of War and the
+        Ministry of Foreign Affairs of Ukraine, Russia is&nbsp;</span><a
+        href="https://stoprussianrecruiters.org/"><span>estimated</span></a><span> to have recruited more than 28
+        000 foreign nationals from 135 countries, including </span><a
+        href="https://global.koordshtab.gov.ua/report/apr-2026"><span>3 000 Africans,</span></a><span> notably from
+        Kenya, Nigeria, Cameroon and Ghana. Ukraine has developed awareness-raising initiatives and launched the
+        ‘</span><a href="https://hochuzhit.com/en/"><span>I Want to Live!’ project</span></a><span> to offer
+        pathways for disengagement for combatants fighting in the ranks of the Russian army.&nbsp;</span>
+</p>
+<p>
+    <span>The EU should establish an anti-scam network linking Ukraine, African partners and civil society to
+        prevent, expose and disrupt Russia’s deceptive recruitment schemes. The network would protect vulnerable
+        individuals and strengthen accountability through intelligence-sharing, victim support and law enforcement
+        cooperation. As current responses remain fragmented, the proposed anti-scam network would connect these
+        efforts into a single operational ecosystem. Its added value would lie in advancing the shared interests of
+        African countries and societies, Ukraine and the EU.&nbsp;</span>
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Illustration spelling out why/impetus"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>Russia needs more people to feed both its war effort and its wartime economy, and it is
+                    increasingly
+                    looking abroad to find them. It exploits unemployment and other drivers of migration, weak consular
+                    protection in countries of origin, and information gaps to recruit foreign nationals. Many recruits
+                    are
+                    reportedly enticed by promises of jobs or education through locally embedded transnational networks
+                    that
+                    spread disinformation. Once in Russia they discover that they have instead been recruited to fight
+                    on the
+                    frontline or work in&nbsp;</span><a
+                    href="https://adf-magazine.com/2025/07/african-women-lured-to-produce-russian-war-drones/"><span>drone
+                        factories</span></a><span>. The Kremlin’s denial of involvement in this recruitment process is
+                    not
+                    credible.&nbsp;</span>
+            </p>
+            <p>
+                <span>As Russia faces growing manpower shortages, it is likely to double down on recruitment beyond its
+                    borders.
+                    African countries, meanwhile, risk seeing their citizens exploited and trafficked through fraudulent
+                    recruitment schemes that often cost them their lives.&nbsp;</span>
+            </p>
+            <p>
+                <span>For Ukraine, disrupting these networks has the potential to reduce Russia’s pool of recruits and
+                    damage
+                    its credibility by exposing the coercive nature of its war effort. For the EU, helping achieve these
+                    goals
+                    advances its own strategic interests: in addition to empowering Ukraine and countering Russian
+                    influence, it
+                    would also help deepen partnerships with African countries and civil society. At the same time, it
+                    would
+                    protect vulnerable individuals and establish new avenues for cooperation in disrupting criminal
+                    networks,
+                    including those linked to irregular migration to the EU and other forms of organised
+                    crime.&nbsp;</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="Illustration spelling out what/idea"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>The EU should establish an anti-scam network bringing together Ukraine, African governments, civil
+                    society
+                    organisations, diaspora communities, labour agencies, journalists and digital platforms. Working
+                    together,
+                    these actors would identify, expose and disrupt deceptive recruitment schemes sustaining Russia’s
+                    army and
+                    war economy, while offering safe channels for victims and their families to seek help.&nbsp;</span>
+            </p>
+            <p>
+                <span>The core aim should be to distinguish mercenaries from potential victims of deception, coercion or
+                    economic exploitation. This distinction matters and evidence should be gathered through cooperation
+                    between
+                    countries of origin and Ukraine when African nationals are captured or surrender. Such cooperation
+                    pathways
+                    can generate actionable intelligence, facilitate the prosecution of those behind the recruitment
+                    scams, and
+                    raise public awareness.</span>
+            </p>
+            <p>
+                <span>The network should operate on three levels. The first is
+                </span><em><span>prevention</span></em><span>:
+                    public campaigns in local languages, school and university briefings, alerts through labour offices,
+                    outreach to diaspora communities, and the moderation of online recruitment advertisements. Targeted
+                    campaigns in local languages can warn young people about fake job offers, bogus scholarships, and
+                    military-linked contracts.</span>
+            </p>
+            <p>
+                <span>The second is </span><em><span>protection</span></em><span>: confidential reporting, case
+                    verification,
+                    legal counselling, family liaison, and repatriation support. Safe reporting mechanisms would improve
+                    the
+                    detection of recruitment scams. Hotlines, WhatsApp channels, embassy focal points, and civil society
+                    organisations can collect reports from families without exposing them to retaliation or
+                    prosecution.&nbsp;</span>
+            </p>
+            <p>
+                <span>The third is </span><em><span>accountability</span></em><span>: evidence-sharing with national
+                    police and
+                    law enforcement agencies with the support of Europol and INTERPOL. Mapping recruitment patterns and
+                    networks, intermediaries, travel routes and online tactics would help dismantle these schemes and
+                    make them
+                    harder to operate.</span>
+            </p>
+            <p>
+                <span>Together, these efforts would strengthen resilience, improve protection and increase deterrence.
+                    In
+                    addition, disarmament, demobilisation and reintegration (DDR)-inspired programmes could encourage
+                    defections
+                    by people already trapped in Russia or in Ukrainian territories currently under Russian occupation.
+                    Safe
+                    corridors should be created to enable those who choose to leave to do so securely.&nbsp;</span>
+            </p>
+
+        </div>
+    </div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="Illustration spelling out how/instruments"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#595959"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>Ukraine is already raising awareness of Russian deceptive recruitment tactics and providing
+                    information on
+                    safe surrender options. Building on these efforts, the EU could launch a pilot initiative with
+                    Ukraine and a
+                    small group of willing African partners, prioritising countries such as Kenya, Ghana and South
+                    Africa where
+                    recruitment cases have already been documented. The EU and African countries already cooperate in
+                    the
+                    security sector, especially in the fight against organised crime through INTERPOL and Europol.
+                    Existing
+                    frameworks could therefore be expanded to include this component and foster coordination through
+                    enhanced
+                    intelligence sharing and cooperation among law enforcement and judicial authorities in Africa, the
+                    EU and
+                    Ukraine. In addition, cooperation with both governments and civil society could help gather
+                    evidence, expose
+                    recruitment networks and raise public awareness.</span>
+            </p>
+            <p>
+                <span>A dedicated rapid response fund could finance key elements of the network, including civil society
+                    awareness campaigns, a secure reporting platform, standard operating procedures for repatriation,
+                    and
+                    targeted sanctions against recruiters and facilitators. The costs would be modest compared with the
+                    consequences of inaction: continued recruitment, more deaths, heightened diplomatic friction, and
+                    the
+                    further spread of Russia’s coercive influence.</span>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter9.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
+</div>
+
+<script>
+    (function () {
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = top + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+</script>

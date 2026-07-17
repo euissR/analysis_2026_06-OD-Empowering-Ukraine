@@ -1,0 +1,423 @@
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        /* background-image: url('/sites/default/files/2026-03/template_bg_0.jpg'); */
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* ── CHAPTER BLURB GRID ────────────────────────────────── */
+    .author-profiles-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    @media (min-width: 768px) {
+        .author-profiles-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Intro blurb fills the column to the left of the intro tile */
+        .intro-blurb {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        /* Intro tile sits to the right, same size as the chapter tiles */
+        .chapter-card--intro {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        /* Spacer sits on its own full-width row between intro and chapters */
+        .chapter-grid-spacer {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .author-profile {
+        overflow: hidden;
+    }
+
+    .author-profile p {
+        margin-top: 0;
+    }
+
+    /* ── CHAPTER CARD WITH HERO IMAGE ──────────────────────── */
+    .chapter-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        padding: 0em 1em 0em 1em;
+        box-shadow: 0 2px 4px rgba(9, 49, 142, 0.08), 0 0 10px rgba(9, 49, 142, 0.04), 0 4px 5px rgba(9, 49, 142, 0.04), 0 -4px 4px rgba(9, 49, 142, 0.04);
+    }
+
+    /* ── INTRO BLURB (text beside the intro tile) ──────────── */
+    .intro-blurb {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        padding: 1em;
+    }
+
+    /* ── SPACER BETWEEN INTRO AND CHAPTER GRID ─────────────── */
+    .chapter-grid-spacer {
+        text-align: center;
+        margin: 1rem 0 2rem;
+    }
+
+    .chapter-grid-spacer h3 {
+        margin: 0 0 0.3em;
+    }
+
+    .chapter-grid-spacer p {
+        margin: 0;
+    }
+
+    /* Numbered heading, placed above the tile image. align-items: baseline
+       keeps the number on the title's first-line baseline even when the
+       title wraps onto extra lines. */
+    .chapter-card-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6em;
+        color: #1d3956;
+    }
+
+    .chapter-card-number {
+        display: inline-block;
+        position: relative;
+        top: -0.2em;
+        flex-shrink: 0;
+        width: 1.8em;
+        height: 1.8em;
+        line-height: 1.8em;
+        text-align: center;
+        background: #1d3956;
+        color: #fff;
+        font-family: 'PT Sans Narrow', sans-serif;
+        font-weight: 700;
+    }
+
+    .chapter-card-img-wrap {
+        display: grid;
+    }
+
+    .chapter-card-img-wrap>* {
+        grid-area: 1 / 1;
+    }
+
+    .chapter-card-img-wrap br {
+        display: none;
+    }
+
+    .chapter-card-img-wrap p {
+        margin: 0;
+    }
+
+    .chapter-card-img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .chapter-card-title {
+        margin: 0;
+        padding: 0 !important;
+    }
+
+    .chapter-card-subtitle {
+        padding: 0.4em 0 0.1em !important;
+        margin: 0 0 0.8em !important;
+        text-wrap: balance;
+    }
+
+    .chapter-card p {
+        margin-top: 0;
+    }
+
+    .chapter-card-readmore {
+        display: inline-block;
+        margin-top: 0.5em;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .chapter-card-readmore:hover {
+        text-decoration: underline;
+    }
+
+    /* Wraps number + title + image + subtitle in a single click target,
+       without disturbing the flex layout of .chapter-card. */
+    .chapter-card-link {
+        display: contents;
+        color: inherit;
+        text-decoration: none;
+    }
+</style>
+
+<!-- ── CHAPTER CARDS WITH HERO IMAGES ─────────────────────────
+     Hero images replace author mugshots throughout this section.
+     template_energy.jpg → Chapter 1 (Energy & sanctions)
+     template_miltech.jpg → Chapter 2 (Military technology)
+     Remaining chapters: text only (no images).
+────────────────────────────────────────────────────────────── -->
+<div class="author-profiles-grid">
+
+    <!-- INTRO BLURB -->
+    <div class="intro-blurb">
+        <p class="body_4-body">Europe should step up its support for Ukraine. Its resources are limited. Fortunately, it
+            can still seize unexplored opportunities, fix systemic flaws, and find ways around seemingly intractable
+            obstacles.This is the time to increase the pressure on Russia, and to strengthen Ukraine’s capacity
+            to secure a favourable peace agreement and manage the aftermath.
+        </p>
+        <a class="chapter-card-readmore" href="empowering-ukraine-introduction">Read the interactive introduction →</a>
+    </div>
+
+    <!-- INTRO -->
+    <div class="chapter-card chapter-card--intro">
+        <a class="chapter-card-link" href="empowering-ukraine-introduction">
+            <div class="chapter-card-heading">
+                <h4 class="chapter-card-title">Introduction</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODintro.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">From wartime solidarity to structural support</h5>
+        </a>
+    </div>
+
+    <!-- SPACER -->
+    <div class="chapter-grid-spacer">
+        <h3>Explore the chapters</h3>
+        <p style="text-align: left; margin-bottom: 1em;">The contributions to this collection look beyond the immediate
+            challenges of the war. They propose new ways in which the EU can empower Ukraine, explain why these ideas
+            could have a transformative impact, and show how they could be translated into policy by building on
+            existing initiatives.
+        </p>
+        <p style="text-align: left; margin-bottom: 1em;">
+            They cover a range of subjects: from building societal resilience to deepening defence-industrial
+            cooperation to strengthening the foundations of deterrence and defence against Russia; from reconstruction
+            and recovery to Ukraine’s gradual integration into the EU; and from reinforcing international support
+            networks for Ukraine to dismantling Russian influence networks across Africa. </p>
+        <p class="body_4-body"><i>Click on a chapter to dive into each priority in depth.</i></p>
+    </div>
+
+    <!-- CHAPTER 1 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter1">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">1</span>
+                <h4 class="chapter-card-title">Defence integration booster</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODLS.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Better use of joint ventures can accelerate Ukraine’s integration into the
+                EU defence industrial base</h5>
+        </a>
+        <p class="body_4-body">Ukraine’s defence industry needs access to capital, technology, production capacity and
+            markets to remain competitive after the war. EU-based joint ventures could deepen industrial integration,
+            strengthen Europe’s defence base and secure Ukraine’s long-term economic and security resilience.
+        </p>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter2">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">2</span>
+                <h4 class="chapter-card-title">The diaspora link</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/NK.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Engaging Ukrainians in Europe for resilience and security</h5>
+        </a>
+        <p class="body_4-body">Millions of Ukrainians living across Europe have not only sought refuge from the war;
+            they are also a strategic asset for Ukraine’s democratic future. Stronger support for diaspora engagement
+            could reinforce democratic resilience, counter Russian interference and benefit both Ukraine and the EU.
+        </p>
+    </div>
+
+    <!-- CHAPTER 3 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter3">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">3</span>
+                <h4 class="chapter-card-title">Integration accelerator</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/BZ.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to anchor Ukraine in the EU before membership</h5>
+        </a>
+        <p class="body_4-body">Full EU membership will take time, but integration does not have to wait. Faster
+            functional, political and societal integration could deliver clear benefits while advancing Ukraine’s path
+            towards accession.
+        </p>
+    </div>
+
+    <!-- CHAPTER 4 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter4">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">4</span>
+                <h4 class="chapter-card-title">A ‘collector pipeline’ for recovery flows</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODflow.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to make the most of the reconstruction funding</h5>
+        </a>
+        <p class="body_4-body">
+            Ukraine needs a smarter way to manage the flows of reconstruction funding. A single digital 'collector
+            pipeline' could integrate donor finance, improve transparency, strengthen planning and ensure recovery
+            resources reach the projects and regions that need them most. </p>
+    </div>
+
+    <!-- CHAPTER 5 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter5">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">5</span>
+                <h4 class="chapter-card-title">‘Big on Board’</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODboard.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Mobilising big business to rebuild Ukraine </h5>
+        </a>
+        <p class="body_4-body">
+            Ukraine’s reconstruction will depend on attracting major private investors despite ongoing security risks. A
+            new 'Big on Board' initiative could combine support for smarter domestic investment incentives with stronger
+            EU de-risking measures to unlock large-scale private capital for recovery.
+        </p>
+    </div>
+    <!-- CHAPTER 6 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter6">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">6</span>
+                <h4 class="chapter-card-title">A resilience turbocharger</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/CH.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to make Ukraine a pillar of European energy security</h5>
+        </a>
+        <p class="body_4-body">
+            Ukraine’s wartime experience offers lessons that could reshape Europe’s energy future. Sustained
+            investment, joint planning and deeper integration should serve to rebuild a cleaner, more resilient
+            system that strengthens both Ukraine’s and Europe’s energy security. </p>
+    </div>
+
+    <!-- CHAPTER 7 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter7">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">7</span>
+                <h4 class="chapter-card-title">Smart fences</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/TR.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Calibrating China’s role in Ukraine’s reconstruction</h5>
+        </a>
+        <p class="body_4-body">
+            Ukraine may not be in a position to ignore Chinese capital, but it should avoid creating new strategic
+            dependencies and vulnerabilities. Stronger screening and regulatory safeguards could allow engagement
+            with
+            China on reconstruction and recovery while protecting the critical infrastructure that will underpin
+            Ukraine’s post-war economy.
+        </p>
+    </div>
+
+    <!-- CHAPTER 8 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter8">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">8</span>
+                <h4 class="chapter-card-title">A Peace and Prosperity Compact</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODGS.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How to facilitate reconstruction while deconflicting EU and US
+                approaches
+            </h5>
+        </a>
+        <p class="body_4-body">Competing national and institutional interests among key stakeholders in securing
+            attractive reconstruction opportunities risk undermining Ukraine’s recovery. A G7-based Peace and
+            Prosperity Compact could align the efforts of the EU, US and other partners, reduce collective action
+            problems and create the conditions needed for sustained private investment, thus serving the interests
+            of all
+        </p>
+    </div>
+
+    <!-- CHAPTER 9 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter9">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">9</span>
+                <h4 class="chapter-card-title">Anti-Scam Network</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/RM.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">Countering Russian recruitment in Africa and beyond</h5>
+        </a>
+        <p class="body_4-body">
+            Russia is using fraudulent job advertisements and bogus scholarship schemes to recruit vulnerable
+            foreign nationals into its war effort. An EU-backed anti-scam network could expose recruitment schemes,
+            protect victims and help Ukraine, African partners and civil society disrupt criminal networks while
+            undermining Russia’s influence in the Plural South</p>
+    </div>
+
+    <!-- CHAPTER 10 -->
+    <div class="chapter-card">
+        <a class="chapter-card-link" href="empowering-ukraine-chapter10">
+            <div class="chapter-card-heading">
+                <span class="chapter-card-number">10</span>
+                <h4 class="chapter-card-title">Transatlantic cards</h4>
+            </div>
+            <div class="chapter-card-img-wrap">
+                <img class="chapter-card-img"
+                    src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/GS.jpg" alt="">
+            </div>
+            <h5 class="chapter-card-subtitle">How the EU can turn Trump’s pro-Ukraine moment into concrete action
+            </h5>
+        </a>
+        <p class="body_4-body">Europe should consider the possibility that Washington’s renewed openness to Ukraine
+            may be short-lived. A coordinated push could secure stronger US backing, increase pressure on Russia and
+            expand defence production for Ukraine in Europe.
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- end .author-profiles-grid (policy chapters) -->

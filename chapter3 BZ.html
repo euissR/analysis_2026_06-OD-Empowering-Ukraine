@@ -1,0 +1,553 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Subheader, hero image, metadata, then Introduction,
+     then three sections — Why / What / How. Each section heading is
+     a 1200×600 image (Why/What/How), with the section's full text
+     sitting below over a handful of theme-coloured tiles scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
+    .space {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 20vh;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
+</style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        How to anchor Ukraine in the EU before membership
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/BZ.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/bojana-zoric" hreflang="en">Bojana Zorić</a> </span>
+
+</div>
+
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>
+    <span>The EU must adopt a more realistic approach to Ukraine's integration. Suggesting that membership is just
+        around the corner risks undermining the EU’s credibility and weakening its leverage over the reforms that
+        accession requires. The opening of&nbsp;</span><a
+        href="https://enlargement.ec.europa.eu/news/enlargement-eu-opens-accession-negotiations-ukraine-external-relations-policies-2026-07-14_en"><span>accession
+            negotiations on the first two clusters</span></a><span>, together with the recent&nbsp;</span><a
+        href="https://www.europesays.com/europe/61345/"><span>Franco-German non-paper on EU
+            enlargement,&nbsp;</span></a><a class="ck-anchor" id="_Hlt235200780"></a><span>have given new impetus to
+        Ukraine's European path. Nevertheless, accession remains a long-term process constrained not only by the
+        pace of reforms in Ukraine, but also by political realities within the Union itself.&nbsp;</span>
+</p>
+<p>
+    <span>A realistic approach means shifting the focus from politically driven accession timelines towards concrete
+        integration milestones that deliver visible benefits. This should become the cornerstone of the EU's
+        strategy towards Kyiv: functional integration is not an alternative to membership, but a way of
+        progressively and irreversibly anchoring Ukraine in the European security and economic space while preparing
+        the ground for full EU accession.&nbsp;</span>
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Illustration spelling out why/impetus"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>This is no longer merely a question of enlargement, but a European security issue. Ukraine already
+                    possesses one of the continent’s most capable armies, significant battlefield experience and a
+                    rapidly
+                    developing defence-industrial sector. Anchoring Ukraine more deeply in European structures would
+                    strengthen
+                    both Ukraine’s resilience and Europe’s long-term security architecture. This makes the credibility
+                    of the
+                    EU's approach towards Ukraine strategically important.</span>
+            </p>
+            <p>
+                <span>Anything short of full EU membership in the near term is likely to disappoint Ukrainians. If
+                    expectations
+                    in Ukraine are not met, disillusionment could weaken the country's pro-European orientation and
+                    create
+                    openings for Russian hybrid warfare tactics. While Ukraine is unlikely to reverse its European
+                    course, unmet
+                    expectations could fuel reform fatigue and reinforce narratives that the EU's promises are
+                    ultimately
+                    unattainable. This would erode the EU's ability to drive reforms through the prospect of integration
+                    and
+                    eventual membership. Functional integration should therefore be treated not simply as an economic
+                    instrument, but as a geopolitical tool that reduces Russian leverage by building irreversible
+                    interdependence between Ukraine and the EU while strengthening Europe's long-term security
+                    architecture.</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="Illustration spelling out what/idea"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>The EU should complement the accession process through an integration accelerator centred on
+                    deeper
+                    functional integration. A precedent already exists. In 1989, when full accession was not yet
+                    politically
+                    feasible<strong>,</strong> Commission President Jacques Delors proposed anchoring&nbsp;</span><span
+                    style="color:#1F1F1F;">European Free Trade Association</span><span> (EFTA) countries in the Single
+                    Market
+                    without immediate accession. This model, later realised through the European Economic Area (EEA),
+                    enabled
+                    deep economic integration and regulatory convergence before membership became politically
+                    possible.&nbsp;</span>
+            </p>
+            <p>
+                <span>A similar logic should guide the EU's approach to Ukraine today. Gradual integration is the most
+                    politically sustainable way to reconcile support for Ukraine across the Member States with the
+                    integrity of
+                    the enlargement process. The strategy should combine three mutually reinforcing dimensions:
+                </span><em><span>functional integration, political
+                        integration&nbsp;</span></em><span>and</span><em><span>
+                        societal integration</span></em><span>.&nbsp;</span>
+            </p>
+            <p>
+                <span>Firstly, functional integration should focus on areas where practical gains are already
+                    achievable,
+                    including electricity market coupling, digital integration, industrial standards, trade and
+                    defence-industrial cooperation. Full coupling of Ukraine’s electricity market with the EU by 2027
+                    would
+                    support reconstruction, attract investment, strengthen energy security and resilience, and integrate
+                    Ukraine
+                    more deeply into the European energy market. Defence-industrial cooperation offers another example,
+                    as
+                    argued by Ondřej Ditrych and Luigi Scazzieri in the chapter <a
+                        href="https://www.iss.europa.eu/publications/analysis/empowering-ukraine-chapter1">'Defence
+                        Integration
+                        Booster'</a>.&nbsp;</span>
+            </p>
+            <p>
+                <span>Secondly, if Ukraine is expected to align with EU rules and absorb the costs of partial access to
+                    the
+                    Single Market, it should also be granted political recognition and inclusion. Ukrainian ministers
+                    could
+                    therefore participate without full voting rights in selected Council discussions related to energy,
+                    transport, digital policy and defence-industrial cooperation, while Ukraine should be progressively
+                    included
+                    in relevant EU platforms and agencies. This would help ensure that integration is experienced not
+                    only as
+                    conditionality, but also as political belonging.</span>
+            </p>
+            <p>
+                <span>Thirdly, integration must be visible to citizens. Ukraine’s participation in the ‘Roam Like at
+                    Home’
+                    policy from January 2026 demonstrates how European integration can deliver tangible improvements in
+                    everyday
+                    life. Similar efforts in mobility, education and people-to-people exchanges would help ensure that
+                    the
+                    benefits of integration are experienced not only through institutional cooperation, but also in
+                    citizens’
+                    daily lives. These initiatives should be accompanied by coherent strategic messaging from the EU and
+                    Ukraine
+                    that clearly explains what each integration milestone delivers and how it advances Ukraine's path to
+                    EU
+                    membership.&nbsp;</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="Illustration spelling out how/instruments"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#595959"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>The next Multiannual Financial Framework (MFF) offers an opportunity to align the EU's financial
+                    support
+                    more closely with Ukraine's integration trajectory. While the proposed Ukraine Reserve, channelled
+                    through
+                    the pre-accession Global Europe instrument, will make available up to&nbsp;</span><a
+                    href="https://op.europa.eu/en/publication-detail/-/publication/ceb7d659-d5d5-11f0-8da2-01aa75ed71a1/language-en?WT.mc_id=Searchresult&amp;WT.ria_c=55576&amp;WT.ria_f=9125&amp;WT.ria_ev=search&amp;WT.URL=https%3A%2F%2Fcommission.europa.eu%2F"><span>€100
+                        billion for 2028–2034</span></a><span>, this falls well short of Ukraine's estimated
+                    reconstruction
+                    needs of more than&nbsp;</span><a
+                    href="https://www.undp.org/sites/g/files/zskgke326/files/2026-04/ukraine-fifth_rapid_damage_and_needs_assessment.pdf.pdf"><span>€520
+                        billion</span></a><span> over the coming decade. Future EU support must do more than finance
+                    recovery:
+                    it should also accelerate Ukraine's integration into the Union. To this end, the Ukraine Reserve
+                    should link
+                    reconstruction funding, accession-related reforms and sectoral integration within a single strategic
+                    framework. Financial support should increasingly be tied to concrete integration milestones in areas
+                    such as
+                    energy, digital policy, transport and defence-industrial cooperation, while reforms should also
+                    improve
+                    Ukraine's business and investment climate to help mobilise much-needed private investment.</span>
+            </p>
+            <p>
+                <span>At the same time, the EU must recognise that deeper market access will entail adjustment costs.
+                    Certain
+                    Ukrainian sectors – such as steel, transport and energy – could face significant competitive and
+                    regulatory
+                    pressures from closer participation in the Single Market. Market opening should be accompanied by
+                    transitional arrangements, safeguard mechanisms and targeted financial support. Continued access
+                    should
+                    remain conditional on sustained reforms, democratic alignment and improvements in the rule of law,
+                    allowing
+                    the EU to maintain leverage against backsliding.</span>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter3.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
+</div>
+
+<script>
+    (function () {
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = top + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+</script>

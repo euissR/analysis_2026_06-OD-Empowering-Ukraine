@@ -1,0 +1,553 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Subheader, hero image, metadata, then Introduction,
+     then three sections — Why / What / How. Each section heading is
+     a 1200×600 image (Why/What/How), with the section's full text
+     sitting below over a handful of theme-coloured tiles scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
+    .space {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 20vh;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
+</style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        Mobilising big business to rebuild Ukraine
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/ODboard.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/ondrej-ditrych" hreflang="en">Ondrej Ditrych</a> </span>
+
+</div>
+
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>
+    <span>Substantial private capital, as well as the participation of more risk-averse stakeholders, will be
+        essential for Ukraine’s recovery and reconstruction. Global investment is increasingly concentrated in
+        developed economies and a limited number of sectors, particularly the digital economy, reflecting growing
+        competition for scarce capital. At the same time, international project finance continues to
+        decline&nbsp;</span><a
+        href="https://unctad.org/news/global-foreign-direct-investment-falls-second-consecutive-year-posing-acute-challenges"><span>according
+            to UN Trade and Development (UNCTAD)</span></a><span>. In addition to helping Ukraine create an
+        attractive environment for doing business, the EU should strengthen incentives for private investment. This
+        will require a combination of domestic measures – expenditure-based incentives in particular – and more
+        effective external de-risking instruments. A new ‘Big on Board’ initiative could help focus the efforts of
+        EU stakeholders towards achieving these goals.</span>
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Illustration spelling out why/impetus"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>Mobilising large-scale private investment and attracting major companies is one of the biggest
+                    challenges
+                    in post-conflict reconstruction and international development. In Ukraine, the challenge is
+                    compounded by a
+                    range of factors: security and political risks, including corruption and still inadequate
+                    anti-corruption
+                    safeguards; the prospect of future instability; labour shortages; and the fact that reconstruction
+                    is taking
+                    place across a vast territory, with regions facing different levels of risk and different
+                    reconstruction
+                    timelines. However, substantial private capital and the implementation capacity of large foreign
+                    companies
+                    will be indispensable to the success of the reconstruction effort. They will be essential for
+                    ensuring
+                    sustainable recovery, building a modern industrial base, and integrating Ukraine more closely into
+                    global
+                    value chains.&nbsp;</span>
+            </p>
+            <p>
+                <span>The allocation and coordination challenges associated with development finance can be addressed
+                    through an
+                    <a href="https://www.iss.europa.eu/publications/analysis/empowering-ukraine-chapter4">effective
+                        system for tracking and managing resources</a>. But a well-designed incentive structure needs
+                    to be in
+                    place to nudge risk-averse stakeholders to engage in rebuilding Ukraine’s public services,
+                    especially in
+                    frontline regions like Kharkiv, Kherson or Odessa.</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="Illustration spelling out what/idea"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>To ensure sufficient flows of private capital, Ukraine will need both security – meeting
+                    institutional
+                    investors’ fiduciary requirements for ‘peacetime’ investment – and a sound business environment.
+                    However,
+                    the EU should also put in place targeted incentives to support the privatisation of local
+                    state-owned
+                    enterprises (SOEs) engaged in large public infrastructure projects and services, the governance of
+                    which
+                    needs to be strengthened, including through the <a
+                        href="https://www.iss.europa.eu/publications/analysis/empowering-ukraine-chapter8">Peace and
+                        Prosperity Compact</a>. The EU should also
+                    encourage
+                    foreign companies capable of providing public services (such as utility companies) to enter the
+                    Ukrainian
+                    market.</span>
+            </p>
+            <p>
+                <span>The ‘Big on Board’ initiative can help by focusing on two priorities within the EU’s broader
+                    support for
+                    Ukraine’s reform, reconstruction and recovery.</span>
+            </p>
+            <p>
+                <span>First, together with other stakeholders such as the Organisation for Economic Co-operation and
+                    Development
+                    (OECD), the EU can assist Ukraine in developing a set of domestic incentives to attract foreign
+                    direct
+                    investment from advanced economies, once a sustained future ceasefire is in place, while <a
+                        href="https://www.iss.europa.eu/publications/analysis/empowering-ukraine-chapter7">ensuring
+                        adequate protection for critical sectors</a>. These include expenditure-based
+                    incentives&nbsp;</span><a
+                    href="https://www.oecd.org/content/dam/oecd/en/publications/reports/2026/03/supporting-ukraine-to-design-and-implement-more-efficient-investment-incentive-policies_bded429c/49f00bcb-en.pdf"><span>proposed
+                        by the OECD</span></a><span> (rather than current tax-based incentives) such as accelerated
+                    depreciation, capital expenditure allowances, green transition investments (aligned with Ukraine’s
+                    EU
+                    accession track), research and development grants, investment tax credits, matching schemes and
+                    investment-based subsidies. At the same time, Ukraine’s investment promotion agency, UkraineInvest,
+                    should
+                    evolve into an entity that assists investors navigate licensing, tax registration and regulatory
+                    compliance
+                    more efficiently, thereby reducing barriers to investment.</span>
+            </p>
+            <p>
+                <span>Second, the EU should give greater priority to de-risking measures when designing its instruments
+                    of
+                    assistance to Ukraine under the next Multiannual Financial Framework (MFF). The lessons learned from
+                    post-conflict reconstruction efforts worldwide suggest placing particular emphasis on blended
+                    finance,
+                    guarantees and consultations with local stakeholders. They also highlight the need for technical
+                    assistance
+                    and reliable data to support security and political risk assessment, due diligence, risk pricing and
+                    insurance for both loans and equity investments.</span>
+            </p>
+            <p>
+                <span>The aim should be not to eliminate risk. From an investor’s perspective, Ukraine will remain a
+                    high-risk
+                    territory for some time. Rather, the objective should be to reduce risk to a level that is
+                    acceptable both
+                    to investors willing to accept higher risks in return for potentially higher returns before the
+                    market fully
+                    stabilises – which may take years – and to more risk-averse providers of essential public services.
+                    These
+                    include utility companies, power generation companies, electricity, digital and communication
+                    network
+                    operators, heating and waste management providers, and major infrastructure construction firms. The
+                    EU could
+                    support these investors through tailored de-risking packages combining blended finance, first loss
+                    risk
+                    insurance, and instruments to lower borrowing costs.</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="Illustration spelling out how/instruments"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#595959"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>The EU can start implementing the ‘Big on Board’ initiative in three ways. First, following
+                    consultations
+                    with other international stakeholders, particularly donors and international financial institutions
+                    (IFIs),
+                    the EU could incorporate expenditure-based investment incentives into the next update of the Ukraine
+                    Plan or
+                    any subsequent framework setting out the conditions for the disbursement of EU aid. The current
+                    emphasis on
+                    tax breaks is likely to have limited impact and may face constraints imposed by the global minimum
+                    tax (GMT)
+                    regime. Secondly, the EU should upgrade the Ukraine Investment Framework (UIF), the second pillar of
+                    the
+                    Ukraine Facility and its main financing instrument for Ukraine, so that it can mobilise more public
+                    and
+                    private capital, particularly for major public infrastructure and service projects. Finally, the EU
+                    should
+                    offer technical assistance to help Ukraine implement the measures included in the Ukraine Plan. This
+                    should
+                    include putting in place conditions for (partial) privatisation of SOEs, and strengthening domestic
+                    investment incentives, including by transforming UkraineInvest into a one-stop shop for foreign
+                    investors.
+                    These new initiatives should be streamlined with parallel efforts by the European Bank for
+                    Reconstruction
+                    and Development (EBRD), the European Investment Bank (EIB) and other IFIs to maximise their impact.
+                    In
+                    particular, the EBRD's wartime risk insurance scheme, the Recovery and Reconstruction Guarantee
+                    Facility,
+                    should be scaled up.</span>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter5.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
+</div>
+
+<script>
+    (function () {
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = top + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+</script>

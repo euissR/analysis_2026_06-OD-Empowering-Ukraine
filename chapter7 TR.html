@@ -1,0 +1,623 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Subheader, hero image, metadata, then Introduction,
+     then three sections — Why / What / How. Each section heading is
+     a 1200×600 image (Why/What/How), with the section's full text
+     sitting below over a handful of theme-coloured tiles scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
+    .space {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 20vh;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
+</style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        Calibrating China’s role in Ukraine’s reconstruction
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/TR.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/tim-ruhlig" hreflang="en">Tim Rühlig</a> </span>
+
+</div>
+
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>
+    <span>Ukraine’s reconstruction bill&nbsp;</span><a
+        href="https://www.worldbank.org/en/news/press-release/2026/02/23/updated-ukraine-recovery-and-reconstruction-needs-assessment-released"><span>is
+            now estimated at €500 billion</span></a> over the next decade<span>. This amounts to nearly three times
+        the country’s projected nominal GDP for 2025. The EU alone cannot cover it, and substantial G7 support
+        remains uncertain. This financing gap creates an opening for China. Beijing has the industrial capacity, the
+        capital, and the appetite: it has&nbsp;</span><a
+        href="https://www.mfa.gov.cn/eng/zy/gb/202405/t20240531_11367485.html"><span>publicly signalled readiness to
+            participate in Ukraine’s post-war reconstruction</span></a><span> and&nbsp;</span><a
+        href="https://www.scmp.com/news/china/diplomacy/article/3302742/china-seeks-role-ukraines-post-war-reconstruction"><span>recently
+            reiterated its interest</span></a><span> – an observation also corroborated by the author’s interviews
+        with party officials.</span>
+</p>
+<p>
+    <span>But Chinese involvement in rebuilding Ukraine’s critical infrastructure carries serious political and
+        security risks. The EU should act now: equipping Ukraine with a robust toolkit of regulatory instruments and
+        risk-limitation expertise so that reconstruction does not become a vector for dependency, espionage or
+        sabotage. The goal should be to calibrate – not prevent – China’s involvement in Ukraine’s
+        reconstruction.</span>
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Illustration spelling out why/impetus"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>This is a pivotal moment. Decisions taken now on procurement rules, technology standards and
+                    investment
+                    screening will shape Ukraine’s infrastructure for decades. Allowing Chinese firms to embed
+                    themselves in
+                    critical systems without adequate safeguards could undermine both Ukraine’s and Europe’s
+                    security.</span>
+            </p>
+            <p>
+                <span>China’s interest in Ukraine’s reconstruction is not incidental. Beijing has developed
+                    a&nbsp;</span><a
+                    href="https://merics.org/en/report/interests-first-chinas-playbook-post-conflict-reconstruction-and-implications-ukraine"><span>growing
+                        global role in post-conflict reconstruction,</span></a><span> with a recognisable track record
+                    that
+                    spans Iraq, South Sudan, Syria, Afghanistan and Ethiopia. In each case, involvement in
+                    reconstruction has
+                    provided Beijing with commercial footholds, political leverage and strategic influence. For example,
+                    in
+                    Ethiopia China was among the first to back reconstruction after the Tigray War, resuming the Exim
+                    Bank–financed Mekelle City Water Supply Project; in Iraq, its 2019 ‘oil-for-projects’ deal traded
+                    twenty
+                    years of guaranteed oil supply for concessional credit earmarked for the country's infrastructure
+                    development. China’s proclivity for mixing commercial and state interests has also sparked security
+                    concerns
+                    in the EU and is likely to generate similar concerns in Ukraine. The risks cluster around three
+                    distinct but
+                    related threats.</span>
+            </p>
+            <p>
+                <span>The first risk is espionage. Chinese companies operate under a domestic legal framework, most
+                    prominently&nbsp;</span><a
+                    href="https://www.chinalawtranslate.com/en/national-intelligence-law-of-the-p-r-c-2017/"><span>the
+                        2017
+                        National Intelligence Law</span></a><span>, that obliges all organisations and citizens to
+                    support,
+                    assist and cooperate with state intelligence work. Their involvement in building or operating
+                    critical
+                    infrastructure – transport hubs, energy grids, communications networks – creates opportunities for
+                    intelligence collection. Any sensitive information gathered could ultimately benefit Moscow should
+                    Beijing
+                    choose to share it with Russia.</span>
+            </p>
+            <p>
+                <span>Sabotage is the second risk. Digital infrastructure, including telecommunications networks and
+                    economically vital seaports, is increasingly maintenance-intensive and requires continuous remote
+                    servicing
+                    by manufacturers. In a conflict scenario, such access could be weaponised to disrupt critical
+                    systems. For
+                    example, if Russia were to launch another attack on Ukraine, Chinese technology companies could
+                    disrupt or
+                    degrade Ukrainian communications and transport networks, thereby undermining Ukraine’s ability to
+                    defend
+                    itself.</span>
+            </p>
+            <p>
+                <span>The third risk is that Chinese-led reconstruction will lock Ukraine into lasting dependencies. The
+                    adoption of Chinese technical standards would create long-term reliance on Chinese suppliers, since
+                    Chinese
+                    technologies and components cannot easily be replaced or serviced by European providers. Once
+                    embedded,&nbsp;</span><a href="https://shop.freiheit.org/#!/Publikation/1334"><span>these
+                        dependencies are
+                        extremely costly to unwind.</span></a>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="Illustration spelling out what/idea"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>To enable Ukraine to benefit from Chinese investment opportunities without compromising its
+                    security, the
+                    EU should equip Ukraine with a robust protective toolkit. This requires systematically transferring
+                    the EU’s
+                    own regulatory and risk-limitation expertise to Ukraine and embedding it in Ukraine’s reconstruction
+                    architecture before Chinese actors establish significant footholds. The necessary safeguards should
+                    be
+                    incorporated into the legal, procurement and investment framework governing reconstruction from the
+                    outset.
+                    The Ukraine Facility Regulation already restricts procurement and supply financed under the Facility
+                    to
+                    eligible countries, effectively excluding Chinese firms and goods. But these rules govern only how
+                    EU funds
+                    are spent; they do not screen Chinese investment in reconstruction financed by Ukraine, other donors
+                    or
+                    private capital, and they contain no investment-screening, high-risk-vendor or foreign-subsidy
+                    mechanism.
+                    The task is therefore to strengthen Ukraine’s own regulatory instruments and to make the Facility’s
+                    discretionary security provisions more systematic. This approach would allow pragmatic engagement
+                    with
+                    Chinese capital and industrial capacity where appropriate, thus contributing to reconstruction and
+                    recovery
+                    efforts to everyone’s benefit, while ring-fencing critical sectors or components.</span>
+            </p>
+            <p>
+                <span>The EU should share lessons learned from its own risk-assessment activities with Ukraine and
+                    discuss the
+                    criteria and thresholds it has put in place, both in its 2023 Economic Security Strategy and
+                    the&nbsp;</span><a
+                    href="https://defence-industry-space.ec.europa.eu/commission-recommends-carrying-out-risk-assessments-four-critical-technology-areas-advanced-2023-10-03_en"><span>four
+                        corresponding risk assessments it has launched</span></a><span> on supply chain resilience,
+                    physical and
+                    cyber security of critical infrastructure, technology security and leakage, and the weaponisation of
+                    economic dependencies.</span>
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="Illustration spelling out how/instruments"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#595959"></div>
+        <div class="scrolly-card">
+            <p>
+                <span>The EU has in place a cooperation mechanism on investment screening through which Member States
+                    and the
+                    Commission exchange information on foreign direct investment (FDI) in sensitive sectors. It is
+                    therefore in
+                    a position to support Ukraine develop its own instruments by sharing lessons learned and
+                    institutional
+                    experience from both national screening regimes and the EU-level screening mechanism. While the EU
+                    cannot
+                    share confidential information exchanged through its investment-screening mechanism with Ukraine, it
+                    can
+                    provide guidance on screening methodologies and implementation. Currently, the EU is&nbsp;</span><a
+                    href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:52024PC0023"><span>expanding
+                        and
+                        harmonising the sectors subject to mandatory screening,</span></a><span> including energy,
+                    transport,
+                    digital infrastructure, defence, dual-use technology, AI, biotech, critical raw materials, food,
+                    media and
+                    ports. Ukraine could receive technical assistance to adopt these practices at a pace commensurate
+                    with its
+                    institutional capacity.</span>
+            </p>
+            <p>
+                <span>In the area of public procurement and state-subsidised competition, the&nbsp;</span><a
+                    href="https://competition-policy.ec.europa.eu/foreign-subsidies-regulation_en"><span>Foreign
+                        Subsidies
+                        Regulation</span></a><span> empowers the European Commission to investigate distortions caused
+                    by non-EU
+                    state subsidies in mergers and public procurement above specified thresholds. A similar mechanism is
+                    needed
+                    in Ukraine to scrutinise Chinese state-backed bids for reconstruction contracts. The&nbsp;</span><a
+                    href="https://policy.trade.ec.europa.eu/enforcement-and-protection/international-procurement-instrument_en"><span>International
+                        Procurement Instrument</span></a> allows the EU to restrict access to public tenders<span> for
+                    firms
+                    from countries that do not offer reciprocal market access. Meanwhile, the&nbsp;</span><a
+                    href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401735"><span>Net-Zero
+                        Industry Act
+                        has introduced explicit non-price criteria</span></a><span> – including sustainability,
+                    resilience and
+                    supply-source diversification – into procurement evaluation for clean-tech tenders. Similar criteria
+                    could
+                    be incorporated into Ukraine’s reconstruction procurement framework, particularly for tenders in
+                    energy and
+                    transport.</span>
+            </p>
+            <p>
+                <span>In the field of cybersecurity and critical infrastructure, the EU’s&nbsp;</span><a
+                    href="https://digital-strategy.ec.europa.eu/en/library/cybersecurity-5g-networks-eu-toolbox-risk-mitigating-measures"><span>5G
+                        Cybersecurity Toolbox</span></a><span> established the ‘high-risk supplier’ concept that has
+                    underpinned
+                    Member State decisions to restrict or exclude Huawei and ZTE. The Commission’s&nbsp;</span><a
+                    href="https://digital-strategy.ec.europa.eu/en/library/proposal-regulation-eu-cybersecurity-act"><span>January
+                        2026 proposal to revise the Cybersecurity Act</span></a><span> would translate the Toolbox into
+                    binding
+                    obligations and extend its logic to fibre-optic and other critical telecommunications
+                    infrastructure. Such
+                    measures could provide a blueprint for Ukraine’s own approach to vendor risk assessment and the
+                    exclusion of
+                    high-risk suppliers. Drawing on the&nbsp;</span><a
+                    href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32022L2555"><span>NIS2
+                        Directive</span></a><span>, Kyiv could harmonise cybersecurity obligations across 18 critical
+                    sectors
+                    and complement this with measures modelled on the&nbsp;</span><a
+                    href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32022L2557"><span>Critical
+                        Entities
+                        Resilience Directive</span></a><span>, which strengthens the physical resilience of critical
+                    entities in
+                    11 sectors.</span>
+            </p>
+            <p>
+                <span>Crucially, much of this is not discretionary as cybersecurity and critical infrastructure rules
+                    form part
+                    of the </span><em><span>acquis</span></em><span>. But the EU should frontload specific instruments
+                    such as
+                    high-risk-vendor screening, NIS2-style obligations, and CER-style resilience within the reform
+                    conditionality.&nbsp;</span>
+            </p>
+            <p>
+                <span>None of this will work without sufficient institutional capacity. Ukraine lacks the resources to
+                    conduct
+                    complex screening procedures, foreign-subsidy investigations and high-risk-vendor assessments at the
+                    scale
+                    that reconstruction will require. The EU can help here with direct technical assistance, not least
+                    in the
+                    context of Europe’s pre-accession assistance.&nbsp;</span>
+            </p>
+            <p>
+                <span>The costs of building this architecture are modest compared to the cost of inaction: a compromised
+                    port, a
+                    sabotaged grid, or a decade-long technical dependency on Chinese suppliers would far outweigh any
+                    short-term
+                    procurement savings, especially once Ukraine has become a member of the EU.</span>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter7.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
+</div>
+
+<script>
+    (function () {
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = top + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+</script>

@@ -58,7 +58,7 @@
         max-width: 100%;
         height: auto;
         opacity: 1;
-        transition: opacity 2s linear;
+        transition: opacity 1s linear;
     }
 
     h2.highlight.is-stuck {
@@ -191,13 +191,56 @@
     .page-metadata.top .editors.no-icon::before {
         content: none !important;
     }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
 </style>
 
 <!-- ── SubHeader ───────────────────────────────────────────── -->
 <div class="subtitle">
     <div
         class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
-        [subtitle]
+        Better use of joint ventures can accelerate Ukraine’s integration into the EU defence industrial base
     </div>
 </div>
 
@@ -231,13 +274,23 @@
 
 <!-- ── INTRODUCTION ─────────────────────────────────────────── -->
 <p>
-
+    The unique qualities of Ukraine’s defence industry are central to the success of its war effort. The industry
+    will be key to maintain deterrence against Russia even once a sustained ceasefire is in place. Beyond security,
+    it is also one of the most promising sectors for rebuilding Ukraine’s peacetime economy.&nbsp;
 </p>
 <p>
-
+    The industry has transformed massively since 2022: it has undergone exponential growth while becoming a driver
+    of innovation, in particular in uncrewed systems. However, it remains vulnerable to Russian attacks and faces
+    significant financing constraints. Moreover, a sustained ceasefire would create uncertainty over the future
+    level of demand, which could lead to a contraction of the sector unless Ukraine develops export opportunities.
 </p>
 <p>
-
+    The EU is already doing much to foster Ukraine’s integration into Europe’s defence base, notably by giving
+    Ukraine access to its defence funding instruments. In parallel, a growing number of partnerships are emerging at
+    the industrial level between Ukrainian and EU firms and governments. The EU should give further momentum to this
+    process by expanding and revamping its support measures. This contribution focuses on one specific dimension of
+    that agenda: how EU-based joint ventures between European and Ukrainian firms can give Ukraine greater
+    production depth, and improve its access to technology, capital and European procurement markets.
 </p>
 
 <!-- ── WHY ──────────────────────────────────────────────────── -->
@@ -251,16 +304,45 @@
         <div class="tile-bg" data-tile-color="#309ebe"></div>
         <div class="scrolly-card">
             <p>
-
+                Ukraine’s defence industry, once a pillar of Ukraine’s Soviet-era economy before falling into decades of
+                decline, has undergone a remarkable revival since 2022. It is now one of the country’s most important
+                wartime
+                assets and could become a key driver of its peacetime economy. However, it faces two key
+                vulnerabilities. First,
+                production facilities in Ukraine remain exposed to Russian attacks. Second, a sustained ceasefire could
+                lead to
+                a fall in domestic procurement, leaving firms without sufficient demand and forcing them to downsize.
+                This would
+                result in a loss of production capacity and make it more difficult to maintain the innovative edge that
+                is
+                Ukraine’s unique strength. The economic costs would be considerable. Ukraine is on course to generate
+                more
+                income from arms exports in 2026 than it did prior to Russia’s full-scale invasion, and its overall
+                production
+                capacity <a href="https://kse.ua/wp-content/uploads/2025/07/UA-Macro-Handbook_Jul2025.pdf">could</a>
+                expand to
+                USD 50 billion by 2028. A contraction of the industry could therefore undercut Ukraine’s economic
+                recovery. In
+                addition, it could also undermine its long-term ability to deter future Russian aggression.
             </p>
             <p>
-
-            </p>
-            <p>
-
-            </p>
-            <p>
-
+                This makes integration into the European Defence Technological and Industrial Base (EDTIB) strategically
+                important to empower Ukraine. European production capacity can provide added depth in the short term.
+                Enhanced
+                access to European procurement systems could unlock a major new source of funding and create sustained
+                demand
+                even in the event of a ceasefire. Moreover, partnering with European companies can provide Ukrainian
+                firms with
+                specific technology and know-how. However, the form of cooperation matters. Relocating a part of
+                Ukrainian
+                production to Europe may improve resilience, but it does not automatically provide access to European
+                funding,
+                technology, certification or procurement markets. Beyond the industrial dimension, deeper defence
+                industrial
+                cooperation and integration will further facilitate the inclusion of Ukraine in the European <a
+                    href="https://journals.sagepub.com/doi/abs/10.1177/00108367221099086">security community</a> by
+                fostering
+                close collaboration in a sector that has traditionally remained highly nationalised.
             </p>
         </div>
     </div>
@@ -278,19 +360,53 @@
         <div class="tile-bg" data-tile-color="#ffde75"></div>
         <div class="scrolly-card">
             <p>
-
+                To sustain the impressive development of its defence industry and maintain its competitive edge, Ukraine
+                needs
+                access to four things that Europe can provide: capital, production depth, access to key technologies and
+                assured
+                future demand. Accelerating Ukraine’s EDTIB integration should therefore focus on several parallel lines
+                of
+                action: facilitating access to funding, encouraging European firms to work in Ukraine, supporting
+                Ukrainian
+                firms operating in Europe, and fostering genuine partnerships between the two sides.
             </p>
             <p>
-
+                The EU should pursue integration along all these dimensions. Joint ventures based in Europe, in which
+                both
+                European and Ukrainian companies contribute intellectual property or production know-how, can play a
+                particularly important role. They can deepen industrial partnerships while helping overcome key
+                obstacles to
+                cooperation. First, they offer a way around the reluctance of many European companies to establish
+                production in
+                Ukraine due to concerns about tech sharing, intellectual property and public procurement, as well as the
+                risk
+                posed to production facilities by Russian attacks. Producing more Ukrainian or Ukrainian-derived systems
+                in
+                Europe would help secure production, allow firms to draw on European industrial capacity, and attract
+                greater
+                European investment in Ukraine’s defence industry.&nbsp;
             </p>
             <p>
-
+                Second, despite its remarkable innovation, Ukraine still needs access to European technologies,
+                components and
+                systems-integration expertise in more complex capability areas such as air defence and deep strike.
+                Joint
+                ventures can bridge this gap by reducing the risks that often make European companies reluctant to share
+                technology, particularly with partners based in Ukraine.&nbsp;
             </p>
             <p>
-
-            </p>
-            <p>
-
+                Third, EU-based joint ventures can help Ukrainian companies gain access to European and NATO procurement
+                markets, which are essential for their long-term survival. European governments are increasing defence
+                spending
+                and becoming more open to broadening procurement to new players. However, Ukrainian products are not
+                automatically easy for European governments to procure, even if a company wants to sell and has
+                government
+                backing. Joint ventures with European firms used to navigating NATO-standard procurement systems can
+                help
+                Ukrainian companies secure contracts and a funding stream. The prospect of export earnings may also be a
+                powerful inducement for Ukrainian firms to persuade the government to grant export licences under the
+                mechanism
+                introduced in June to attract greater international investment.
             </p>
         </div>
     </div>
@@ -308,17 +424,67 @@
         <div class="tile-bg" data-tile-color="#595959"></div>
         <div class="scrolly-card">
             <p>
-
+                European firms are increasingly setting up operations in Ukraine, for example the successful Rheinmetall
+                Ukrainian Defence Industry LLC. In parallel, Ukrainian companies like Firepoint are setting up
+                production in
+                Europe. Several EU governments, such as Denmark and the Netherlands, are actively encouraging
+                partnerships with
+                Ukrainian companies and production in Europe. Joint ventures are already an important element of this
+                cooperation architecture. For example, Auterion Airlogix, which combines Ukrainian and German expertise
+                in
+                artificial intelligence (AI), illustrates how such ventures can link Ukrainian firms with partners that
+                bring
+                capital, facilitate certification and systems integration and provide access to procurement
+                opportunities.
             </p>
             <p>
-
+                To encourage the wider use of joint ventures and make them more efficient, the EU could adapt its
+                funding
+                instruments to incentivise their creation. Currently, an EU-headquartered joint venture that combines
+                European
+                and Ukrainian technology to facilitate technology sharing, manage export controls and access the EU
+                market is
+                classified simply as a ‘European’ company and receives no particular support from the EU. Future EU
+                defence-industrial funding instruments could give greater weight to projects in which Ukrainian firms
+                contribute
+                core intellectual property or production know-how through European-incorporated joint ventures.&nbsp;
             </p>
             <p>
-
+                Beyond adjusting its instruments, the EU could help assemble funding packages for joint ventures. Past
+                examples,
+                including Denmark’s €67 million envelope, show that establishing production facilities requires
+                substantial
+                public funding, as well as government backing to secure the necessary permits. The EU could help
+                coordinate
+                packages combining host-state funding, EU financing, European Investment Bank (EIB) financing for
+                eligible
+                dual-use elements, and private capital. Moreover, the next Multiannual Financial Framework (MFF) could
+                also
+                include a dedicated EU defence-industrial budget line to encourage the creation of joint ventures.&nbsp;
+            </p>
+            <p>
+                Public support should also include clear demand signals. To help joint ventures scale up production,
+                Member
+                States should consider framework contracts and advance purchase commitments that would give firms the
+                certainty
+                needed to increase production capacity and attract private capital. To facilitate testing and
+                certification,
+                Member States should provide Ukrainian firms and Ukrainian-European partnerships, including EU-based
+                joint
+                ventures, with access to testing facilities.
             </p>
         </div>
     </div>
     <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter1.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
 </div>
 
 <script>

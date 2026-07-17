@@ -1,16 +1,3 @@
-<!-- ═══════════════════════════════════════════════════════════
-     CHAPTER TEMPLATE
-     Structure: Subheader, hero image, metadata, then Introduction,
-     then three sections — Why / What / How. Each section heading is
-     a 1200×600 image (Why/What/How), with the section's full text
-     sitting below over a handful of theme-coloured tiles scattered
-     at random on page load.
-
-     To use: duplicate this file per chapter, replace the bracketed
-     placeholders, and drop in the section text. Nothing else needs
-     to change — colours are wired up already.
-═══════════════════════════════════════════════════════════ -->
-
 <!-- ── FONTS ────────────────────────────────────────────────── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,180 +5,13 @@
     href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
     rel="stylesheet">
 
-<style>
-    /* ── BASE ──────────────────────────────────────────────── */
-    body {
-        overflow-x: hidden;
-    }
-
-    /* ── SECTION HEADINGS ──────────────────────────────────────
-       Each h2.highlight holds nothing but the section's image
-       (1200×600, alt text only). A scroll listener (below) pins
-       it to the top of the viewport once its section reaches the
-       top — reimplemented in JS rather than CSS position:sticky
-       since the latter is fragile once this markup lands in a
-       CMS page (see chapter_template.html history). Once pinned,
-       it drops behind the section text (z-index) and fades to
-       opacity 0 over 3 seconds.
-
-       Pinning takes the heading out of flow, so .heading-slot
-       reserves its place — the script locks the slot's height to
-       the image's rendered height right before detaching it, so
-       the text below doesn't jump up to fill the gap.
-    ────────────────────────────────────────────────────────── */
-    .chapter-section {
-        position: relative;
-        margin: 0 0 4rem;
-    }
-
-    .heading-slot {
-        position: relative;
-    }
-
-    h2.highlight {
-        margin: 0;
-        padding: 0.5em 0;
-    }
-
-    h2.highlight img {
-        display: block;
-        max-width: 100%;
-        height: auto;
-        opacity: 1;
-        transition: opacity 2s linear;
-    }
-
-    h2.highlight.is-stuck {
-        position: fixed;
-        top: 0;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    h2.highlight.is-stuck img {
-        opacity: 0;
-    }
-
-    h2.highlight::before {
-        content: "";
-        display: block;
-        width: 5%;
-        height: 1em;
-        margin-left: -2%;
-        margin-bottom: -0.6em;
-    }
-
-    /* theme colours per section */
-    .highlight-why::before {
-        background-color: #309ebe00;
-    }
-
-    .highlight-what::before {
-        background-color: #ffde7500;
-    }
-
-    .highlight-how::before {
-        background-color: #59595900;
-    }
-
-    /* ── TILE BACKDROP ─────────────────────────────────────── */
-    .scrolly-card-wrap {
-        position: relative;
-    }
-
-    .tile-bg {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    .tile {
-        position: absolute;
-        width: 80px;
-        height: 45px;
-        opacity: 0.1;
-    }
-
-    /* ── SCROLLY CARD: holds the section's full text, no styling
-       of its own — the tiles behind it do the visual work. ──── */
-    .scrolly-card {
-        position: relative;
-        z-index: 1;
-        margin: 0;
-        padding: 0;
-        border: none;
-        box-shadow: none;
-        background: none;
-    }
-
-    .scrolly-card p {
-        margin-top: 0;
-    }
-
-    /* space between sections carries a colour blend from the section
-       just scrolled past into the one coming up next */
-    .space {
-        position: relative;
-        overflow: hidden;
-        margin: 0;
-        height: 20vh;
-        width: 100%;
-        pointer-events: none;
-    }
-
-    /* ── HERO IMAGE ────────────────────────────────────────────
-       Breaks out of whatever width-constrained container the CMS
-       wraps body content in: centering on the viewport (left: 50%
-       + negative margin) rather than relying on the parent's own
-       width means it escapes cleanly regardless of container width.
-    ────────────────────────────────────────────────────────── */
-    .hero-image {
-        width: 100vw;
-        position: relative;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
-    }
-
-    .hero-image img {
-        display: block;
-        width: 100%;
-        height: auto;
-    }
-
-    /* ── PAGE METADATA ─────────────────────────────────────────
-       Drupal's ".field" class defaults to display: block in most
-       themes, regardless of the tag it lands on — that's why the
-       date / reading-time / byline spans stack vertically instead
-       of running inline. Forcing them back to inline fixes it; a
-       generated middle-dot separator replaces the source whitespace
-       between segments, which Drupal's editor strips on save.
-    ────────────────────────────────────────────────────────── */
-    .page-metadata.top .date,
-    .page-metadata.top .reading-time,
-    .page-metadata.top .editors,
-    .page-metadata.top p {
-        display: inline;
-        margin: 0;
-    }
-
-    .page-metadata.top .date::after,
-    .page-metadata.top .reading-time::after {
-        content: "   ·   ";
-        opacity: 0;
-    }
-
-    /* Drupal's author field renders each linked name as its own
-       ".editors" fragment (see JS below), and the theme's icon is
-       keyed off that class — so every fragment gets its own icon.
-       ".no-icon" (added by script) suppresses all but the first. */
-    .page-metadata.top .editors.no-icon::before {
-        content: none !important;
-    }
-</style>
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        From wartime solidarity to structural support
+    </div>
+</div>
 
 <!-- ── HERO IMAGE ───────────────────────────────────────────── -->
 <div>
@@ -231,14 +51,15 @@
 <p></p>
 <!-- DEEP STRIKES -->
 <div id="graphic-one">
-    <div class="flourish-embed" data-height="80vh" data-src="story/3721459"
+    <div class="flourish-embed" data-height="70vh" data-src="story/3721459"
         data-url="https://flo.uri.sh/story/3721459/embed">
         <script src="https://public.flourish.studio/resources/embed.js"></script>
     </div>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721459/slide-1"></a> From a modest start in 2022, the number of Ukrainian strikes deep inside
+    <p><a href="#story/3721459/slide-1">&#8203;</a> From a modest start in 2022, the number of Ukrainian strikes deep
+        inside
         Russia
         has risen steadily. Ukrainian drones now reach targets up to 3 000 km away, including Russia’s <a
             href="https://www.reuters.com/business/energy/ukrainian-drones-hit-russias-largest-refinery-one-deepest-strikes-yet-2026-07-06/"
@@ -248,8 +69,9 @@
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721459/slide-1"></a> This year the number of deep strikes is set to reach a record, likely more
-        than
+    <p><a href="#story/3721459/slide-1">&#8203;</a> This year the number of deep strikes is set to reach a record,
+        likely
+        more than
         doubling the number of attacks recorded in 2025 (661). Domestic production of Ukrainian long-range drones
         capable of deep strikes&nbsp;<a
             href="https://www.ft.com/content/7beeff28-27b4-417a-b1ef-43298f736f00?syn-25a6b1a6=1"
@@ -259,15 +81,16 @@
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721459/slide-1"></a> Meanwhile, daring operations like Spiderweb have demonstrated Ukraine’s
-        skill
+    <p><a href="#story/3721459/slide-1">&#8203;</a> Meanwhile, daring operations like Spiderweb have demonstrated
+        Ukraine’s skill
         in planning and conducting complex covert operations by deploying drones that successfully targeted distant
         Russian military airbases.
     </p>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721459/slide-1"></a> Sustained strikes on Russian energy infrastructure are also imposing rising
+    <p><a href="#story/3721459/slide-1">&#8203;</a> Sustained strikes on Russian energy infrastructure are also imposing
+        rising
         economic costs and broadening the domestic impact of the war. Innovations like FP-1 ‘motherships’, which can
         launch smaller quadcopters near their targets, are increasing the effectiveness of attacks on military
         targets.
@@ -369,28 +192,29 @@
 <p>
     The amount of the EU’s support exceeds that of any other international donor. The US comes a distant second, having
     provided an estimated €120 billion worth of support,&nbsp;<a
-        href="https://www.kielinstitut.de/publications/ukraine-support-tracker-data-6453"
-        target="_blank">according</a> to the Kiel
+        href="https://www.kielinstitut.de/publications/ukraine-support-tracker-data-6453" target="_blank">according</a>
+    to the Kiel
     Institute Ukraine Support Tracker.&nbsp;
 </p>
 
 <!-- SCROLLY 2 - STEPPING IN -->
 <div id="graphic-two">
-    <div class="flourish-embed" data-height="80vh" data-src="story/3720619"
+    <div class="flourish-embed" data-height="70vh" data-src="story/3720619"
         data-url="https://flo.uri.sh/story/3720619/embed">
         <script src="https://public.flourish.studio/resources/embed.js"></script>
     </div>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3720619/slide-1"></a> Since the second Trump administration took office, US direct support to
-        Ukraine
+    <p><a href="#story/3720619/slide-1">&#8203;</a> Since the second Trump administration took office, US direct support
+        to Ukraine
         has largely petered out.
     </p>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3720619/slide-2"></a> However, the EU has stepped up its assistance to offset this decline,
+    <p><a href="#story/3720619/slide-2">&#8203;</a> However, the EU has stepped up its assistance to offset this
+        decline,
         increasing
         military aid by 67 % and non-military aid by 59 % above the previous three-year average, as recorded by the
         Kiel Institute.
@@ -412,23 +236,25 @@
 
 <!-- MILITARY ASSISTANCE -->
 <div id="graphic-one">
-    <div class="flourish-embed" data-height="80vh" data-src="story/3720687"
+    <div class="flourish-embed" data-height="70vh" data-src="story/3720687"
         data-url="https://flo.uri.sh/story/3720687/embed">
         <script src="https://public.flourish.studio/resources/embed.js"></script>
     </div>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3720687/slide-1"></a> In addition to increasing financial aid...
+    <p><a href="#story/3720687/slide-1">&#8203;</a> In addition to increasing financial aid the EU has supported the
+        training of
+        Ukraine’s armed forces and security
+        sector reform through two CSDP missions – EUMAM (which, at the time of writing, has trained&nbsp;<a
+            href="https://commission.europa.eu/topics/eu-solidarity-ukraine/eu-assistance-ukraine/eu-military-support-ukraine_en"
+            target="_blank">over</a>
+        93 000 Ukrainian troops) and EUAM.
     </p>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3720687/slide-2"></a> ...the EU has supported the training of Ukraine’s armed forces and security
-        sector reform through two CSDP missions – EUMAM (which, at the time of writing, has trained&nbsp;<a
-            href="https://commission.europa.eu/topics/eu-solidarity-ukraine/eu-assistance-ukraine/eu-military-support-ukraine_en"
-            target="_blank">over</a>
-        93 000 Ukrainian troops) and EUAM. Meanwhile, extending defence-industrial cooperation and Ukraine’s
+    <p><a href="#story/3720687/slide-2">&#8203;</a> Meanwhile, extending defence-industrial cooperation and Ukraine’s
         integration into initiatives such as Security Action for Europe (SAFE) and the European Defence Industry
         Programme&nbsp;(EDIP) allows Ukraine to pool financing, production capacity and innovation with its European
         partners to meet shared defence needs more effectively.
@@ -455,7 +281,8 @@
 <p>
     EU support will need to continue over a sustained period after a ceasefire is reached and until the now devasted
     Ukrainian economy is capable of generating sufficient revenue – and comes to resemble the government’s vision of a
-    liberal ‘<a href="https://economyoffuture.gov.ua/" target="_blank">Economy of the Future</a>’ with sustained growth, foreign direct
+    liberal ‘<a href="https://economyoffuture.gov.ua/" target="_blank">Economy of the Future</a>’ with sustained growth,
+    foreign direct
     investment (FDI) exceeding prewar levels and conditions conducive to the eventual return of at least three million
     Ukrainians from abroad to meet the country’s labour needs. Russia’s war has caused terrible human suffering and vast
     economic damage. The most recent&nbsp;<a
@@ -471,28 +298,30 @@
 
 <!-- SCROLLY 3 - INFRA, DAMAGE, NEEDS -->
 <div id="graphic-two">
-    <div class="flourish-embed" data-height="80vh" data-src="story/3721176"
+    <div class="flourish-embed" data-height="70vh" data-src="story/3721176"
         data-url="https://flo.uri.sh/story/3721176/embed">
         <script src="https://public.flourish.studio/resources/embed.js"></script>
     </div>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721176/slide-1"></a> The damage has been distributed unevenly across Ukraine’s regions,
+    <p><a href="#story/3721176/slide-1">&#8203;</a> The damage has been distributed unevenly across Ukraine’s regions,
         including the
         territories under illegal Russian occupation.
     </p>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721176/slide-2"></a> Donetska oblast accounts for about one quarter of the overall damage, while
+    <p><a href="#story/3721176/slide-2">&#8203;</a> Donetska oblast accounts for about one quarter of the overall
+        damage,
+        while
         Kharkivska and Zaporizka oblasts together account for another quarter.
     </p>
     <div class="space">
         &nbsp;
     </div>
-    <p><a href="#story/3721176/slide-3"></a> As a result, reconstruction and recovery needs vary significantly across
-        the
+    <p><a href="#story/3721176/slide-3">&#8203;</a> As a result, reconstruction and recovery needs vary significantly
+        across the
         country. The most severely hit frontline regions risk failing to attract sufficient funding.
     </p>
     <div class="space">
@@ -583,6 +412,15 @@
     be pursued more effectively and, where possible, at lower cost.
 </p>
 
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-introduction.pdf"
+            type="application/pdf" class="button">Download introduction</a>
+    </p>
+</div>
+
 <!-- SCROLLY LOGIC -->
 <script src=" https://cdn.flourish.rocks/flourish-scrolly-v3.1.0.min.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -594,6 +432,8 @@
             fontSize: "20px",
             "line-height": "1.6em",
             padding: "1.25em 0.45em",
+            width: window.innerWidth <= 768 ? "90%" : "66%",
+            zIndex: "20",
         },
     });
 </script>
@@ -661,6 +501,28 @@
     })();
 </script>
 
+<script>
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+
+    (function () {
+        // Same "CSS doesn't reliably survive Drupal's save pipeline"
+        // issue as the .fl-scrolly-step sizing above: neutralize the
+        // scrolly-trigger anchors' link look via inline styles (JS),
+        // not a <style> rule, so it isn't at the mercy of the filter.
+        document.querySelectorAll('a[href^="#story/"]').forEach(function (el) {
+            el.style.color = "inherit";
+            el.style.textDecoration = "none";
+        });
+    })();
+</script>
+
 <style>
     body {
         overflow-x: hidden !important;
@@ -702,7 +564,9 @@
     }
 
     /* scrolly step wrapper links: keep them functional for Flourish's API,
-       but stop them looking/behaving like normal hyperlinks */
+       but stop them looking/behaving like normal hyperlinks. Needed here
+       because these anchors wrap the full step text (matching the known-
+       working _OLD structure), unlike the emptied-anchor experiment. */
     a[href^="#story/"],
     a[href^="#story/"]:hover,
     a[href^="#story/"]:visited,
@@ -804,5 +668,189 @@
 
     .hl3 {
         background-color: #33163a;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
     }
 </style>

@@ -1,0 +1,614 @@
+<!-- ═══════════════════════════════════════════════════════════
+     CHAPTER TEMPLATE
+     Structure: Subheader, hero image, metadata, then Introduction,
+     then three sections — Why / What / How. Each section heading is
+     a 1200×600 image (Why/What/How), with the section's full text
+     sitting below over a handful of theme-coloured tiles scattered
+     at random on page load.
+
+     To use: duplicate this file per chapter, replace the bracketed
+     placeholders, and drop in the section text. Nothing else needs
+     to change — colours are wired up already.
+═══════════════════════════════════════════════════════════ -->
+
+<!-- ── FONTS ────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=PT+Sans+Narrow:wght@400;700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* ── BASE ──────────────────────────────────────────────── */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── SECTION HEADINGS ──────────────────────────────────────
+       Each h2.highlight holds nothing but the section's image
+       (1200×600, alt text only). A scroll listener (below) pins
+       it to the top of the viewport once its section reaches the
+       top — reimplemented in JS rather than CSS position:sticky
+       since the latter is fragile once this markup lands in a
+       CMS page (see chapter_template.html history). Once pinned,
+       it drops behind the section text (z-index) and fades to
+       opacity 0 over 3 seconds.
+
+       Pinning takes the heading out of flow, so .heading-slot
+       reserves its place — the script locks the slot's height to
+       the image's rendered height right before detaching it, so
+       the text below doesn't jump up to fill the gap.
+    ────────────────────────────────────────────────────────── */
+    .chapter-section {
+        position: relative;
+        margin: 0 0 4rem;
+    }
+
+    .heading-slot {
+        position: relative;
+    }
+
+    h2.highlight {
+        margin: 0;
+        padding: 0.5em 0;
+    }
+
+    h2.highlight img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        opacity: 1;
+        transition: opacity 1s linear;
+    }
+
+    h2.highlight.is-stuck {
+        position: fixed;
+        top: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    h2.highlight.is-stuck img {
+        opacity: 0;
+    }
+
+    h2.highlight::before {
+        content: "";
+        display: block;
+        width: 5%;
+        height: 1em;
+        margin-left: -2%;
+        margin-bottom: -0.6em;
+    }
+
+    /* theme colours per section */
+    .highlight-why::before {
+        background-color: #309ebe00;
+    }
+
+    .highlight-what::before {
+        background-color: #ffde7500;
+    }
+
+    .highlight-how::before {
+        background-color: #59595900;
+    }
+
+    /* ── TILE BACKDROP ─────────────────────────────────────── */
+    .scrolly-card-wrap {
+        position: relative;
+    }
+
+    .tile-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .tile {
+        position: absolute;
+        width: 80px;
+        height: 45px;
+        opacity: 0.1;
+    }
+
+    /* ── SCROLLY CARD: holds the section's full text, no styling
+       of its own — the tiles behind it do the visual work. ──── */
+    .scrolly-card {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    .scrolly-card p {
+        margin-top: 0;
+    }
+
+    /* space between sections carries a colour blend from the section
+       just scrolled past into the one coming up next */
+    .space {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        height: 20vh;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    /* ── HERO IMAGE ────────────────────────────────────────────
+       Breaks out of whatever width-constrained container the CMS
+       wraps body content in: centering on the viewport (left: 50%
+       + negative margin) rather than relying on the parent's own
+       width means it escapes cleanly regardless of container width.
+    ────────────────────────────────────────────────────────── */
+    .hero-image {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /* ── PAGE METADATA ─────────────────────────────────────────
+       Drupal's ".field" class defaults to display: block in most
+       themes, regardless of the tag it lands on — that's why the
+       date / reading-time / byline spans stack vertically instead
+       of running inline. Forcing them back to inline fixes it; a
+       generated middle-dot separator replaces the source whitespace
+       between segments, which Drupal's editor strips on save.
+    ────────────────────────────────────────────────────────── */
+    .page-metadata.top .date,
+    .page-metadata.top .reading-time,
+    .page-metadata.top .editors,
+    .page-metadata.top p {
+        display: inline;
+        margin: 0;
+    }
+
+    .page-metadata.top .date::after,
+    .page-metadata.top .reading-time::after {
+        content: "   ·   ";
+        opacity: 0;
+    }
+
+    /* Drupal's author field renders each linked name as its own
+       ".editors" fragment (see JS below), and the theme's icon is
+       keyed off that class — so every fragment gets its own icon.
+       ".no-icon" (added by script) suppresses all but the first. */
+    .page-metadata.top .editors.no-icon::before {
+        content: none !important;
+    }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────────────────────
+       Normally Drupal auto-generates this ("Links" region) as a
+       sibling right after .content-main, from a file field on the
+       node — outside anything an editor touches in the body field.
+       Since this chapter doesn't have that field wired up, it's
+       reproduced by hand here at the end of the body content.
+       Approximated from the theme's link/button colour tokens;
+       swap in the real .links/.button-group/.button rule if the
+       full theme stylesheet is available.
+    ────────────────────────────────────────────────────────── */
+    .links .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs, 0.75rem);
+        margin: var(--spacing-m, 1.5rem) 0 0;
+    }
+
+    .links .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background-color: var(--link-hover-bg-color, #1a7e9b);
+        color: var(--link-hover-fg-color, #fff);
+        text-decoration: none;
+        font-weight: 700;
+        padding: var(--spacing-xs, 0.75rem) var(--spacing-s, 1.25rem);
+        border-radius: 2px;
+        border: var(--wt-ecl-button-border-width, 0) solid transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .links .button:hover,
+    .links .button:focus {
+        background-color: var(--decor-primary-color, #113655);
+        color: #fff;
+    }
+
+    .links .button::before {
+        content: "⭳";
+        font-size: 1.1em;
+        line-height: 1;
+    }
+</style>
+
+<!-- ── SubHeader ───────────────────────────────────────────── -->
+<div class="subtitle">
+    <div
+        class="clearfix text-formatted field field--name-field-subtitle field--type-string-long field--label-hidden field__item">
+        Engaging Ukrainians in Europe for resilience and security
+    </div>
+</div>
+
+<!-- ── HERO IMAGE ───────────────────────────────────────────── -->
+<div>
+    <img src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/NK.jpg" width="1600" height="700"
+        alt="Hero image placeholder">
+</div>
+
+<!-- ── MetaData ───────────────────────────────────────────── -->
+<div class="page-metadata top">
+    <h2 class="visually-hidden">Metadata</h2>
+
+    <span class="date field field--name-field-date field--type-datetime">
+        <time datetime="2026-07-20T12:00:00Z" class="datetime">20 July 2026</time>
+
+    </span>
+
+    <span class="reading-time field field--name-node-read-time field--type-string">
+        Reading time:
+        5 minutes
+    </span>
+
+    <span class="editors field field--name-field-author field--type-entity-reference">
+        By:
+        <a href="/about-us/author/nada-kovalcikova" hreflang="en">Nad’a Kovalčíková</a> </span>
+
+</div>
+
+
+<!-- ── INTRODUCTION ─────────────────────────────────────────── -->
+<p>
+    Once a sustained ceasefire is in place, Ukraine’s first post-war elections will be a defining test of the
+    country’s democratic resilience. The circumstances will be exceptional. Yet seen from this perspective, the
+    approximately <a href="https://data.unhcr.org/en/situations/ukraine">five million Ukrainian citizens</a> now
+    residing across numerous EU Member States are more than displaced people: they are also a strategic democratic
+    constituency whose resilience and political engagement will help shape both their country’s recovery and the
+    future of European security. To ensure that Europe’s military, financial and political investment in Ukraine
+    delivers lasting results, Ukraine must emerge from Russia’s war of aggression not only as a stable state, but
+    also as a reliable democratic partner. The EU should therefore help safeguard the integrity of out-of-country
+    voting while harnessing the wartime experience and civic engagement of Ukrainians living in Europe to strengthen
+    resilience against Russian interference.
+</p>
+
+<!-- ── WHY ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-why"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/why.png" width="1200"
+                height="600" alt="Illustration spelling out why/impetus"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#309ebe"></div>
+        <div class="scrolly-card">
+            <p>
+                Creating favourable conditions for Ukrainians living in the EU and for those who choose to <a
+                    href="https://data.unhcr.org/en/dataviz/409?sv=54&amp;geo=0">return</a> home requires early
+                preparation and
+                sustained engagement to build trust, develop skills and capacities, and strengthen civic networks across
+                Europe,
+                thereby supporting Ukraine’s postwar reconstruction and recovery. In parallel, leveraging Ukrainians’
+                wartime
+                experience can help EU Member States to enhance whole-of-society resilience and civil-military
+                preparedness
+                through joint resilience-building activities.
+            </p>
+            <p>
+                Existing initiatives led by organisations such as International IDEA or the International Foundation for
+                Electoral Systems (IFES) focus on the technical and regulatory challenges of out-of-country voting to
+                strengthen
+                democratic legitimacy, social cohesion and long-term stability in Ukraine. Complementing these efforts,
+                non-governmental and non-partisan organisations like OPORA also engage Ukrainians across borders in
+                activities
+                that reinforce democratic resilience. These include election monitoring, integrating security mechanisms
+                into
+                democratic governance, countering disinformation, documenting war crimes and international
+                advocacy.&nbsp;
+            </p>
+            <p>
+                Beyond continued funding, the EU could build on these efforts by institutionalising and expanding
+                support for
+                initiatives that foster the resilience of Ukrainians as a whole, both at home and abroad, while engaging
+                them to
+                address a wider set of democratic and societal challenges shared with EU citizens. Stronger EU-Ukraine
+                civic
+                resilience networks would help ensure that this engagement endures beyond a ceasefire. Integrated
+                measures will
+                also reduce the risk of widespread disenfranchisement and reinforce the legitimacy and integrity of
+                future
+                elections, which will almost certainly be a target for Russian interference.&nbsp;
+            </p>
+            <p>
+                For the EU, supporting such efforts is not only an act of solidarity. It is also an investment in
+                safeguarding
+                Ukraine's – and by, extension, Europe’s – democratic, secure and prosperous future.
+            </p>
+        </div>
+    </div>
+    <div class="space" data-tile-color="#309ebe" data-tile-color-next="#ffde75">&nbsp;</div>
+</div>
+
+<!-- ── WHAT ─────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-what"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/what.png" width="1200"
+                height="600" alt="Illustration spelling out what/idea"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#ffde75"></div>
+        <div class="scrolly-card">
+            <p>
+                One way to strengthen democratic resilience is to support the integrity of out-of-country voting by
+                Ukrainian
+                diaspora communities, treating it as a strategic investment rather than a short-term project or a purely
+                technical electoral exercise. At the same time, investing in broader, long-term transnational resilience
+                programmes would help sustain democratic connections long after temporary protection arrangements
+                expire. Such
+                programmes would also strengthen European security by increasing capacities against foreign
+                interference.
+            </p>
+            <p>
+                Before Russia’s war of aggression against Ukraine, out-of-country voting relied largely on embassies and
+                consulates. The model is no longer fit for purpose. Millions of Ukrainians are now dispersed across
+                dozens of
+                Member States, often with outdated voter registration records, and subject to different legal and
+                administrative
+                frameworks in their host countries. A limited number of consular officials are responsible for serving
+                communities often numbering in the hundreds of thousands. In many cases, diaspora organisations have
+                stepped in
+                to fill this gap, acting as trusted intermediaries between the Ukrainian authorities and citizens.
+            </p>
+            <p>
+                Out-of-country voting in future elections will not merely be a technical electoral exercise. It will
+                likely be
+                one of the largest cross-border democratic governance operations ever conducted, requiring coordination
+                across
+                multiple EU Member States and close cooperation with the Ukrainian authorities to enable large-scale
+                electoral
+                participation. Success will depend not only on voter engagement but also on structured dialogue,
+                agreements
+                (such as Memoranda of Understanding) and operational cooperation between host-country authorities, the
+                Ukrainian
+                authorities, domestic civil society, Ukrainian diaspora organisations and citizens in Ukraine. Fruitful
+                cooperation must begin well ahead of the electoral process. It requires early and effective
+                communication and
+                sustained financial and operational investment. This should include expanding polling facilities beyond
+                embassies and consulates to facilitate in-person voting, coordinating voter registration, putting in
+                place the
+                necessary security and legal arrangements and developing systematic channels of communication with
+                Ukrainian
+                citizens living abroad.&nbsp;
+            </p>
+            <p>
+                Secondly, building societal and electoral resilience takes time and requires early institutional
+                preparedness.
+                It should include joint training and simulation exercises involving election officials, civilian and
+                military
+                personnel, and Ukrainian citizens both with and without wartime experience as part of a broader effort
+                to
+                strengthen integrated, transnational resilience. Such an approach would also improve the capacity to
+                anticipate
+                and manage potential disruptions. Strengthening the resilience of Ukrainians living abroad against
+                Russia’s
+                interference activities will be critical before, during and in the aftermath of Ukraine’s first post-war
+                elections. Moscow has repeatedly demonstrated its willingness to exploit elections and societal
+                divisions.
+                Future Ukrainian elections will likely become a prime target of hybrid Russian attacks, in particular
+                through
+                information operations. Experience across Europe suggests that citizens’ resilience to information
+                manipulation
+                is strengthened not only through fact-checking, monitoring and media literacy initiatives, but also
+                through
+                deeper social cohesion. Displaced populations are often exposed to fragmented information environments,
+                making
+                them particularly vulnerable to disinformation. This is especially the case when diaspora communities
+                are not
+                well-integrated into their host societies or organised among themselves.
+            </p>
+
+        </div>
+    </div>
+    <div class="space" data-tile-color="#ffde75" data-tile-color-next="#595959">&nbsp;</div>
+</div>
+
+<!-- ── HOW ──────────────────────────────────────────────────── -->
+<div class="chapter-section">
+    <div class="heading-slot">
+        <h2 class="highlight highlight-how"><img
+                src="https://euissr.github.io/analysis_2026_06-OD-Empowering-Ukraine/src/how.png" width="1200"
+                height="600" alt="Illustration spelling out how/instruments"></h2>
+    </div>
+    <div class="scrolly-card-wrap">
+        <div class="tile-bg" data-tile-color="#595959"></div>
+        <div class="scrolly-card">
+            <p>
+                Ukrainian institutions, including the Central Election Commission of Ukraine, have been engaging with
+                the host
+                countries of Ukrainian diaspora communities to develop detailed technical recommendations on future
+                out-of-country voting arrangements. To strengthen the integrity of upcoming electoral processes, the EU
+                could
+                complement these efforts by providing sustained, forward-looking support to democratic actors working
+                with
+                Ukrainians abroad. It should start by identifying established organisations that represent and mobilise
+                Ukrainian diaspora communities across the EU as key institutional partners. Their organisational
+                structure and
+                levels of engagement vary considerably across Member States, in part due to different waves of
+                immigration
+                before and after Russia’s full-scale invasion, as well as differences in local integration or social
+                conditions.
+                Consequently, the EU must engage with a diverse network of actors, ranging from established and
+                well-coordinated
+                Ukrainian associations, for example in Poland, Spain and Sweden, to more fragmented diaspora groups,
+                e.g. in
+                neighbouring Moldova.&nbsp;
+            </p>
+            <p>
+                The EU can also build on <a
+                    href="https://www.idea.int/news/joint-statement-call-european-parliament-support-funding-democracy-smart-investment-achieve-eu">recent
+                    proposals&nbsp;</a>developed by democracy-focused organisations, some of which featured also in a
+                non-paper
+                circulated by Sweden in the Council of the EU in March 2026, and which have been endorsed by seven other
+                EU
+                Member States. In particular, it should leverage the 2028-2034 Global Europe instrument under the next
+                Multiannual Financial Framework (MFF) to scale up support for democratic resilience efforts as part of
+                the EU’s
+                external action. This could in particular benefit Ukrainian civil society organisations working with
+                counterparts across the EU to mobilise and engage Ukrainian democratic constituencies abroad. Although
+                the next
+                MFF may take effect only after Ukraine’s first post-war elections, strengthened investment in democracy
+                with
+                targeted funding and support to organisations cooperating across Ukraine and the EU will generate
+                significant
+                returns for security and economic development by fostering sustainable civic partnerships across
+                borders.
+            </p>
+            <p>
+                Particular attention should be paid to social media platforms (especially Telegram, YouTube, Instagram
+                and
+                Facebook) and messaging applications. Ukrainian communities across Europe rely on them as their <a
+                    href="https://oporaua.org/en/viyna/ukrainians-abroad-and-post-war-elections-participation-communication-and-engagement-with-the-state-a-quantitative-study-26093">main
+                    sources</a> of information about events in Ukraine, but threat actors also exploit them to
+                manipulate
+                information. Other online media and informal social networks also play an important role in shaping
+                information
+                consumption within Ukrainian communities.&nbsp;
+            </p>
+            <p>
+                To help counter such interference during elections, the EU should further encourage Ukraine to swiftly
+                align
+                with its regulatory framework, including the Digital Services Act, the Regulation on the transparency
+                and
+                targeting of political advertising, and the Digital Markets Act. Over the longer term, the EU should
+                sustain its
+                engagement with the targeted communities through both election-related and resilience-building
+                exercises. These
+                should draw on Ukrainians’ wartime experience (for example, activities organised by the European
+                Security and
+                Defence College) and complement voter education, media and digital literacy initiatives, as well as
+                structured
+                community dialogue with trusted diaspora organisations in host countries and neighbouring states. Such
+                measures
+                would strengthen electoral and broader societal resilience while helping to reduce disparities in
+                integration
+                and democratic participation.&nbsp;
+            </p>
+            <p>
+                The European Centre for Democratic Resilience already provides a platform for targeted partnership
+                initiatives
+                led by Member States. It could also foster stronger links with the Ukrainian diaspora to engage
+                communities
+                across Europe in resilience and security efforts, particularly around elections, when democratic
+                legitimacy and
+                electoral integrity are most at risk.
+            </p>
+        </div>
+    </div>
+    <!-- <div class="space" data-tile-color="#df3144">&nbsp;</div> -->
+</div>
+
+<!-- ── DOWNLOAD BUTTON ──────────────────────────────────────── -->
+<div class="links">
+    <h2 class="visually-hidden">Links</h2>
+    <p class="button-group small">
+        <a href="https://www.iss.europa.eu/sites/default/files/2026-07/2026-07%20Empowering%20Ukraine-chapter2.pdf"
+            type="application/pdf" class="button">Download chapter</a>
+    </p>
+</div>
+
+<script>
+    (function () {
+        function hexToRgb(hex) {
+            var h = hex.replace("#", "");
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+
+        function blend(hexA, hexB, t) {
+            var a = hexToRgb(hexA), b = hexToRgb(hexB);
+            var r = Math.round(a.r + (b.r - a.r) * t);
+            var g = Math.round(a.g + (b.g - a.g) * t);
+            var bl = Math.round(a.b + (b.b - a.b) * t);
+            return "rgb(" + r + "," + g + "," + bl + ")";
+        }
+
+        // .tile-bg holds a single-colour scatter behind each section's text;
+        // .space (between sections) blends from the colour just scrolled
+        // past into the colour of the section coming up next.
+        document.querySelectorAll(".tile-bg, .space[data-tile-color]").forEach(function (bg) {
+            var colorA = bg.getAttribute("data-tile-color") || "#309ebe";
+            var colorB = bg.getAttribute("data-tile-color-next");
+            var count = 5 + Math.floor(Math.random() * 6); // 5–10 tiles
+            for (var i = 0; i < count; i++) {
+                var top = Math.random() * 90;
+                var tile = document.createElement("div");
+                tile.className = "tile";
+                tile.style.top = top + "%";
+                tile.style.left = Math.random() * 90 + "%";
+                tile.style.background = colorB ? blend(colorA, colorB, top / 90) : colorA;
+                bg.appendChild(tile);
+            }
+        });
+    })();
+
+    (function () {
+        var sections = Array.prototype.slice.call(document.querySelectorAll(".chapter-section"));
+
+        function updateStuckImages() {
+            sections.forEach(function (section) {
+                var slot = section.querySelector(".heading-slot");
+                var heading = section.querySelector("h2.highlight");
+                if (!slot || !heading) return;
+
+                var sectionRect = section.getBoundingClientRect();
+                var inSection = sectionRect.top <= 0 && sectionRect.bottom > 0;
+
+                if (inSection) {
+                    if (!heading.classList.contains("is-stuck")) {
+                        // lock the slot's height before taking the heading out of flow
+                        slot.style.height = heading.offsetHeight + "px";
+                        heading.classList.add("is-stuck");
+                    }
+                    heading.style.left = sectionRect.left + "px";
+                    heading.style.width = sectionRect.width + "px";
+                } else {
+                    heading.classList.remove("is-stuck");
+                    heading.style.left = "";
+                    heading.style.width = "";
+                    slot.style.height = "";
+                }
+            });
+        }
+
+        updateStuckImages();
+        window.addEventListener("scroll", updateStuckImages, { passive: true });
+        window.addEventListener("resize", updateStuckImages);
+        window.addEventListener("load", updateStuckImages);
+    })();
+
+    (function () {
+        // Drupal splits the byline into one ".editors" fragment per
+        // author link plus separators; only the first should keep
+        // the theme's icon, so mark the rest with ".no-icon".
+        document.querySelectorAll(".page-metadata.top .editors").forEach(function (el, i) {
+            if (i > 0) el.classList.add("no-icon");
+        });
+    })();
+</script>
